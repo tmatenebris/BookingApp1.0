@@ -1,0 +1,47 @@
+﻿<Window x:Class="BookingApp1._0.RegisterScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BookingApp1._0"
+        mc:Ignorable="d"
+        Title="Register" Height="700" Width="350" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        <Rectangle Height="700" VerticalAlignment="Top" RadiusX="10" RadiusY="10">
+            <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF2281D1"/>
+                    <GradientStop Color="#FF34268A" Offset="1"/>
+                    <GradientStop Color="#FF33288B" Offset="0.5"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <Rectangle Width="280" Height="500" Fill="White" VerticalAlignment="Center" Margin="0,100" RadiusX="10" RadiusY="10">
+            <Rectangle.Effect>
+                <DropShadowEffect Color="DarkGray" Direction="0" BlurRadius="15" RenderingBias="Quality" ShadowDepth="1" />
+            </Rectangle.Effect>
+        </Rectangle>
+        <Grid Width="280" Height="500" VerticalAlignment="Center" Margin="0,100">
+            <TextBlock Text="Register your account!" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20" Foreground="Gray" FontSize="18"/>
+            <StackPanel VerticalAlignment="Center" Margin="10">
+                <TextBox Margin="0,10" x:Name ="Username" materialDesign:HintAssist.Hint="Username" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
+                <TextBox Margin="0,10" x:Name ="FirstName" materialDesign:HintAssist.Hint="First Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
+                <TextBox Margin="0,10" x:Name ="LastName" materialDesign:HintAssist.Hint="Last Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
+                <TextBox Margin="0,10" x:Name ="EMail" materialDesign:HintAssist.Hint="E-Mail" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
+                <TextBox Margin="0,10" x:Name ="PhoneNumber" materialDesign:HintAssist.Hint="Phone Number" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
+                <PasswordBox Margin="0,10" x:Name="Password" materialDesign:HintAssist.Hint="Password" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" Cursor="Arrow"/>
+            </StackPanel>
+        </Grid>
+        <Grid VerticalAlignment="Top" Margin="35,580,35,0" Height="35">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+                <Button Width="125" Content="REGISTER" HorizontalAlignment="Center" Grid.Column="0" Click="RegisterAccount"/>
+            <Button Width="125" Content="Close" HorizontalAlignment="Center" Grid.Column="1" Click="CloseWindow" Cursor="Hand"/>
+        </Grid>
+    </Grid>
+</Window>

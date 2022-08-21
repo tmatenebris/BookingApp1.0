@@ -1,0 +1,111 @@
+﻿<Window x:Class="BookingApp1._0.OfferScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Offer" Height="600" Width="900" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None"
+         AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        
+            <Rectangle Width="900" Height="600" Fill="White" VerticalAlignment="Center"  RadiusX="10" RadiusY="10">
+                <Rectangle.Effect>
+                    <DropShadowEffect Color="DarkGray" Direction="0" BlurRadius="15" RenderingBias="Quality" ShadowDepth="1" />
+                </Rectangle.Effect>
+            </Rectangle>
+       
+
+        <Grid Height="600" Width="900">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Rectangle Height="700" VerticalAlignment="Top" RadiusX="10" RadiusY="10">
+                <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FF2281D1"/>
+                        <GradientStop Color="#FF34268A" Offset="1"/>
+                        <GradientStop Color="#FF33288B" Offset="0.5"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                 
+                
+                <Image x:Name="OfferThumbnail" Source="/Assets/image-placeholder.png" Margin="20"/>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    
+                    <TextBlock Text="Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28"/>
+                    <DockPanel HorizontalAlignment="Center" Margin="0,150,0,0">
+                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"/>
+                        <TextBlock Text="To" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="12" Width="50" TextAlignment="Center"/>
+                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"/>
+                    </DockPanel>
+                    <Button Content="Book" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 15"/>
+                    
+                    <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Margin="0, 40">
+                            <TextBlock Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Foreground="White" FontSize="14"/>
+                            <TextBlock  Text="Location:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Price:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock  Text="Capacity:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                        </StackPanel>
+
+                        
+
+                        <StackPanel Grid.Column="1" Margin="0, 40">
+                            <TextBlock x:Name="HallName" Text="Hall of Fame" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="HallLocation" Text="New York" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="HallPrice"  Text="120$" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="HallCapacity" Text="120" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <TextBlock Text="Owner Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28" Grid.Column="1"/>
+                    <Button Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 15" Grid.Column="1" Click="CloseOfferWindow"/>
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0, 40">
+                            <TextBlock Text="First Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Last Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Phone Number:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock Text="E-Mail:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="0, 40">
+                            <TextBlock x:Name="OwnerName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="OwnerLastName" Text="Stopczynski" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="OwnerPhoneNumber" Text="501 232 123" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="OwnerEmail" Height="60" TextWrapping="Wrap" Text="dsadasdassadsa@gmail.com" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                        </StackPanel>
+                    </Grid>
+                  
+                </Grid>
+
+                
+            </Grid>
+            <FlowDocumentReader Grid.Row="1" x:Name="DocReader"/>
+        </Grid>
+    </Grid>
+</Window>
