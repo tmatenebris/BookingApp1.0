@@ -133,7 +133,7 @@ namespace TCPConnection
                         }
                     }
                     content = content.Replace("<EOF>", "");
-                    if (content.IndexOf("<User") != -1)
+                    if (content.IndexOf("<User/>") != -1)
                     {
                         //Console.WriteLine("Recieved user packagge!");
 
@@ -163,9 +163,47 @@ namespace TCPConnection
                             }
                         }
                     }
+                    else if (content.IndexOf("[(UPDATE)]") > -1)
+                    {
+                        content = content.Replace("[(UPDATE)]", "");
+
+                        HallDTO new_hallDTO = XMLSerialize.Deserialize<HallDTO>(content);
+                        ///string result = current.databaseConnection.InsertHall(new_hall);
+                        // byte[] data = Encoding.ASCII.GetBytes(result);
+                        // current.clientSocket.Send(data);
+                        ///
+                        string result = "error";
+                        Hall new_hall = new Hall(new_hallDTO);
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                
+
+                                var to_update = context.Halls.Where(s => s.HallId == new_hall.HallId).First();
+                                to_update.Name = new_hall.Name;
+                                to_update.Location = new_hall.Location;
+                                //to_update.Description = new_hall.Description;
+                                to_update.Image = new_hall.Image;
+                                to_update.Price = new_hall.Price;
+                                to_update.Capacity = new_hall.Capacity;
+                               
+                                context.SaveChanges();
+
+                                result = "succeed";
+                                Send(handler, result + "<EOF>");
+                            }
+                           catch (Exception ex)
+                           {
+                                Send(handler, result + "<EOF>");
+                           }
+                        }
+
+
+                    }
                     else if (content.IndexOf("HallDTO") != -1)
                     {
-                        HallDTO new_hallDTO = XMLSerialize.Deserialize<HallDTO>(content);
+                       
                         ///string result = current.databaseConnection.InsertHall(new_hall);
                         // byte[] data = Encoding.ASCII.GetBytes(result);
                         // current.clientSocket.Send(data);
@@ -175,12 +213,61 @@ namespace TCPConnection
                         {
                             try
                             {
+                                 HallDTO new_hallDTO = XMLSerialize.Deserialize<HallDTO>(content);
                                 Hall new_hall = new Hall(new_hallDTO);
+                                Imagesandesc new_imgs = new Imagesandesc();
+                                new_imgs.Description = new_hallDTO.Description;
+                                new_imgs.Image = Convert.ToBase64String(new_hallDTO.Image);
+                               
                                 context.Halls.Add(new_hall);
+                                //context.Add(new_imgs);
+                                context.SaveChanges();
+
+                                new_imgs.HallId = new_hall.HallId;
+                                context.Add(new_imgs);
+                                context.SaveChanges();
+                                result = "succeed";
+                                Send(handler,result + "<EOF>");
+                           }
+                            catch (Exception ex)
+                           {
+                                Send(handler, result + "<EOF>");
+                           }
+                        }
+                    }
+                    else if(content.IndexOf("<Booking/>") > -1)
+                    {
+                        string result = "error";
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                Booking new_booking = XMLSerialize.Deserialize<Booking>(content);
+                                context.Bookings.Add(new_booking);
                                 context.SaveChanges();
 
                                 result = "succeed";
-                                Send(handler,result + "<EOF>");
+                                Send(handler, result + "<EOF>");
+                            }
+                            catch (Exception ex)
+                            { 
+                                Send(handler, result + "<EOF>");
+                            }
+                        }
+                    }
+                    else if (content.IndexOf("GetMyBookings") > -1)
+                    {
+                        string result = "error";
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                List<BookingView> booking_list = new List<BookingView>();
+                                booking_list = context.Bookingviews.Where(s => s.UserId == current.UserId).ToList();
+                               
+                                result = XMLSerialize.Serialize<List<BookingView>>(booking_list);
+                                Console.WriteLine(result);
+                                Send(handler, result + "<EOF>");
                             }
                             catch (Exception ex)
                             {
@@ -218,12 +305,57 @@ namespace TCPConnection
                             }
                         }
                     }
-                    else if (content.IndexOf("<Filters") != -1)
+                    else if (content.IndexOf("[(GET_FILTERED_DATA)]") != -1)
                     {
-                        //Filters to_apply   = XMLSerialize.Deserialize<Filters>(text);
-                        ///string result = databaseConnection.GetFiltredData(to_apply);
-                        ///byte[] data = Encoding.ASCII.GetBytes(result);
-                        //current.clientSocket.Send(data);
+                        content = content.Replace("[(GET_FILTERED_DATA)]", "");
+                        Console.WriteLine(content);
+                        string result = "error";
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                           // try
+                           // {
+                                Filters to_apply = XMLSerialize.Deserialize<Filters>(content);
+                                
+                                DbConnection con = context.Database.GetDbConnection();
+
+                                con.Open();
+                                DbCommand cmd = con.CreateCommand();
+
+                                cmd.CommandText = @"select * from getfiltereddata('"+to_apply.from_date+"', '"+to_apply.to_date+"', "+to_apply.from_price+", "+to_apply.to_price+", "+to_apply.from_capacity+ ","+to_apply.to_capacity+", '"+to_apply.location+"')";
+
+                                DbDataReader reader = cmd.ExecuteReader();
+                                List<HallDTO> halls = new List<HallDTO>();
+                                if(reader.HasRows)
+                                {
+                                    while(reader.Read())
+                                    {
+                                        HallDTO hallDTO = new HallDTO();
+
+                                        HallDTO tmp = new HallDTO();
+                                        tmp.HallId = reader.GetInt32(0);
+                                        tmp.Name = reader.GetString(1);
+                                        tmp.Location = reader.GetString(2);
+                                        tmp.Price = reader.GetInt32(3);
+                                        tmp.Capacity = reader.GetInt32(4);
+                                        tmp.ThumbnailImage = Convert.FromBase64String(reader.GetString(5));
+                                        halls.Add(tmp);
+                                    }
+                                }
+
+                                reader.Close();
+                                con.Close();
+                                result = XMLSerialize.Serialize<List<HallDTO>>(halls);
+                                Console.WriteLine(result);
+                                Send(handler, result + "<EOF>");
+
+                           // }
+                            //catch (Exception ex)
+                           // {
+                           //     Send(handler, result + "<EOF>");
+                            //}
+                        }
+
+
                     }
                     else if (content == "GetFiltersInitial")
                     {
@@ -318,7 +450,7 @@ namespace TCPConnection
                         {
                             try
                             {
-                                var halls = context.Halls.Take(14).ToList();
+                                var halls = context.Halls.ToList();
                                 List<HallDTO> hallDTOs = new List<HallDTO>();
                                 foreach (var hall in halls)
                                 {
@@ -449,8 +581,8 @@ namespace TCPConnection
                         string result = "error";
                         using (var context = new BookingAppContext(current.options.Options))
                         {
-                            try
-                            {
+                           try
+                           {
                                 var my_halls = context.Halls.Where(s => s.OwnerId == current.UserId).ToList();
 
                                 List<HallDTO> hallDTOs = new List<HallDTO>();
@@ -461,11 +593,11 @@ namespace TCPConnection
                                 result = XMLSerialize.Serialize<List<HallDTO>>(hallDTOs);
                                 Console.WriteLine(result);
                                 Send(handler, result + "<EOF>");
-                            }
-                            catch (Exception ex)
-                            {
+                           }
+                          catch (Exception ex)
+                          {
                                 Send(handler, result + "<EOF>");
-                            }
+                          }
 
                         }
 

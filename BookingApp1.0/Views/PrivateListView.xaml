@@ -33,13 +33,13 @@
 
             </Grid>
 
-
+            <ProgressBar Grid.Row="1" x:Name="ProgressBar" Style="{StaticResource MaterialDesignCircularProgressBar}" Width="50" Height="50" Maximum="100" Minimum="0"/>
             <DataGrid ItemsSource="{Binding}" AutoGenerateColumns="False" Grid.Row="1" RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1}" x:Name="MyHallsGrid" Style="{DynamicResource DataGridStyle1}">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Image" Width="auto" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding Image}" Width="50" Height="50" />
+                                <Image Source="{Binding ThumbnailImage}" Width="50" Height="50" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

@@ -34,20 +34,20 @@
 
             </Grid>
 
-
-            <DataGrid ItemsSource="{Binding}" AutoGenerateColumns="False" Grid.Row="1" RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1}" x:Name="hallDataGrid" Style="{DynamicResource DataGridStyle1}">
+            <ProgressBar Grid.Row="1" x:Name="ProgressBar" Style="{StaticResource MaterialDesignCircularProgressBar}" Width="50" Height="50" Maximum="100" Minimum="0"/>
+            <DataGrid ItemsSource="{Binding}" AutoGenerateColumns="False" Grid.Row="1" RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1}" x:Name="bookingList" Style="{DynamicResource DataGridStyle1}">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Image" Width="auto" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding Image}" Width="50" Height="50" />
+                                <Image Source="{Binding ByteImage}" Width="50" Height="50" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Owner" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Name}"/>
-                    <DataGridTextColumn Header="Hall Name" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Location}"/>
-                    <DataGridTextColumn Header="From" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Price}"/>
-                    <DataGridTextColumn Header="To" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Capacity}"/>
+                    <DataGridTextColumn Header="Owner" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Owner}"/>
+                    <DataGridTextColumn Header="Hall Name" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="From" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding FromDateString}"/>
+                    <DataGridTextColumn Header="To" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding ToDateString}"/>
                     
                     <DataGridTemplateColumn Header="Operations" IsReadOnly="True" Width="auto">
                         <DataGridTemplateColumn.CellTemplate>
@@ -74,13 +74,13 @@
                     </Button>
                     <Rectangle Width="1" Fill="#dee4ec" Margin="3 7"></Rectangle>
 
-                    <Button Style="{StaticResource pagingButton}" Click="OnPreviousClicked">
+                    <Button Style="{StaticResource pagingButton}" Click="OnPreviousClicked" x:Name="PrevPage">
                         <fa:IconImage Icon="AngleLeft" Style="{StaticResource pagingButtonIcon}"/>
 
                     </Button>
                     <Rectangle Width="1" Fill="#dee4ec" Margin="3 7"></Rectangle>
 
-                    <Button Style="{StaticResource pagingButton}" Click="OnNextClicked">
+                    <Button Style="{StaticResource pagingButton}" Click="OnNextClicked" x:Name="NextPage">
                         <fa:IconImage Icon="AngleRight" Style="{StaticResource pagingButtonIcon}"/>
 
                     </Button>

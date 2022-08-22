@@ -17,9 +17,10 @@ namespace Database.Models
         public int Price { get; set; }
         public int Capacity { get; set; }
         public byte[] Image { get; set; }
-        public string? Description { get; set; }
 
-  
+        public byte[] ThumbnailImage { get; set; }
+
+        public string Description { get; set; }
         public HallDTO(Hall a)
         {
             this.HallId = a.HallId;
@@ -28,8 +29,7 @@ namespace Database.Models
             this.Location = a.Location;
             this.Price = a.Price;
             this.Capacity = a.Capacity;
-            this.Description = a.Description;
-            this.Image = Convert.FromBase64String(a.Image);
+            this.ThumbnailImage = Convert.FromBase64String(a.Image);
         }
         public HallDTO()
         {

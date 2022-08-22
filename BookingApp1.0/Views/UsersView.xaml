@@ -28,13 +28,13 @@
             <Grid Width="300" HorizontalAlignment="Right" Margin="0 0 20 0">
                 <TextBlock Margin="20 0" VerticalAlignment="Center" Foreground="AliceBlue" IsHitTestVisible="False"
                            Panel.ZIndex="1" Text="Search by name..." Visibility="{Binding ElementName=txtFilter, Path=Text.IsEmpty, Converter={StaticResource BoolToVis}}"/>
-                <TextBox x:Name="txtFilter" Style="{StaticResource searchTextBox}"/>
+                <TextBox x:Name="txtFilter" Style="{StaticResource searchTextBox}" TextChanged="FilterByName" Height="40"/>
                 <fa:IconImage Icon="Search" Width="15" Height="15" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 15 0"/>
 
 
             </Grid>
 
-
+            <ProgressBar Grid.Row="1" x:Name="ProgressBar" Style="{StaticResource MaterialDesignCircularProgressBar}" Width="50" Height="50" Maximum="100" Minimum="0"/>
             <DataGrid x:Name ="UsersGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" Grid.Row="1" RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1}"  Style="{DynamicResource DataGridStyle1}">
                 <DataGrid.Columns>
 

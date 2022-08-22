@@ -5,10 +5,7 @@ namespace Database.Models
 {
     public partial class Hall
     {
-        public Hall()
-        {
-            Bookings = new HashSet<Booking>();
-        }
+
 
         public Hall(HallDTO a)
         {
@@ -18,8 +15,13 @@ namespace Database.Models
             this.Location = a.Location;
             this.Price = a.Price;
             this.Capacity = a.Capacity;
-            this.Description = a.Description;
-            this.Image = Convert.ToBase64String(a.Image);
+            this.Image = Convert.ToBase64String(a.ThumbnailImage);
+        }
+
+        public Hall()
+        {
+            Bookings = new HashSet<Booking>();
+            Imagesandescs = new HashSet<Imagesandesc>();
         }
 
         public int HallId { get; set; }
@@ -29,9 +31,9 @@ namespace Database.Models
         public int Price { get; set; }
         public int Capacity { get; set; }
         public string? Image { get; set; }
-        public string? Description { get; set; }
 
         public virtual User? Owner { get; set; }
         public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<Imagesandesc> Imagesandescs { get; set; }
     }
 }

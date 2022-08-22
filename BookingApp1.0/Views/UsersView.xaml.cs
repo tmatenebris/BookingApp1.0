@@ -48,6 +48,16 @@ namespace BookingApp1._0.Views
             
         }
 
+        private async Task<IPagedList<User>> GetPagedListAsyncNameFiltered(string name, int pageNumber = 1, int pageSize = 11)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                return _users.Where(s => s.FirstName.Contains(name)).ToPagedList(pageNumber, pageSize);
+            });
+
+
+        }
+
         private async Task<List<User>> GetUsersAsync()
         {
             return await Task.Factory.StartNew(() =>
@@ -61,8 +71,10 @@ namespace BookingApp1._0.Views
 
         private async void UserView_Load(object sender, EventArgs e)
         {
+            ProgressBar.IsIndeterminate = true;
             _users = await GetUsersAsync();
             _cview = await GetPagedListAsync();
+            ProgressBar.IsIndeterminate = false;
             PrevPage.IsEnabled = _cview.HasPreviousPage;
             NextPage.IsEnabled = _cview.HasNextPage;
             UsersGrid.DataContext = _cview.ToList();
@@ -87,6 +99,22 @@ namespace BookingApp1._0.Views
                 PrevPage.IsEnabled = _cview.HasPreviousPage;
                 NextPage.IsEnabled = _cview.HasNextPage;
                 UsersGrid.DataContext = _cview.ToList();
+            }
+        }
+
+        private async void FilterByName(object sender, TextChangedEventArgs e)
+        {
+            if (txtFilter.Text != String.Empty)
+            {
+                _cview = await GetPagedListAsyncNameFiltered(txtFilter.Text, 1);
+                UsersGrid.DataContext = _cview.ToList();
+                pageNumber = 1;
+            }
+            else
+            {
+                _cview = await GetPagedListAsync(1);
+                UsersGrid.DataContext = _cview.ToList();
+                pageNumber = 1;
             }
         }
     }

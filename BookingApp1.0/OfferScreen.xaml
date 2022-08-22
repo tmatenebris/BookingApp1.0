@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Offer" Height="600" Width="900" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None"
+        Title="Offer" Height="740" Width="1030" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None"
          AllowsTransparency="True" Background="Transparent">
     <Grid>
         
-            <Rectangle Width="900" Height="600" Fill="White" VerticalAlignment="Center"  RadiusX="10" RadiusY="10">
+            <Rectangle Width="1030" Height="740" Fill="White" VerticalAlignment="Center"  RadiusX="10" RadiusY="10">
                 <Rectangle.Effect>
                     <DropShadowEffect Color="DarkGray" Direction="0" BlurRadius="15" RenderingBias="Quality" ShadowDepth="1" />
                 </Rectangle.Effect>
             </Rectangle>
        
 
-        <Grid Height="600" Width="900">
+        <Grid Height="800" Width="1030">
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
@@ -37,9 +37,13 @@
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                 
+
+
+                <StackPanel VerticalAlignment="Top" Grid.Column="0">
+                    <Image x:Name="OfferThumbnail" Width="450" Height="300" Source="/Assets/image-placeholder.png" Margin="10 30 0 0"/>
+                    <Button x:Name="UploadButton" Content="Upload Thumbnail" Width="200" Height="30" Click="UploadThumbnail" Margin="0, 20" Visibility="Collapsed" Cursor="Hand"/>
+                </StackPanel>
                 
-                <Image x:Name="OfferThumbnail" Source="/Assets/image-placeholder.png" Margin="20"/>
                 <Grid Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -49,11 +53,12 @@
                     
                     <TextBlock Text="Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28"/>
                     <DockPanel HorizontalAlignment="Center" Margin="0,150,0,0">
-                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"/>
+                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White" x:Name="FromDate"/>
                         <TextBlock Text="To" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="12" Width="50" TextAlignment="Center"/>
-                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"/>
+                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"  x:Name="ToDate"/>
                     </DockPanel>
-                    <Button Content="Book" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 15"/>
+                    <Button x:Name="BookButton"  Content="Book" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Click="Book" Cursor="Hand"/>
+                    <Button x:Name="UpdateButton" Content ="Update" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Click="UpdateOffer" Visibility="Hidden" Cursor="Hand"/>
                     
                     <Grid Grid.Column="0">
                         <Grid.ColumnDefinitions>
@@ -62,7 +67,7 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0" Margin="0, 40">
-                            <TextBlock Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Foreground="White" FontSize="14"/>
+                            <TextBlock Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Foreground="White" FontSize="14" />
                             <TextBlock  Text="Location:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
                             <TextBlock Text="Price:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
                             <TextBlock  Text="Capacity:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
@@ -71,16 +76,16 @@
                         
 
                         <StackPanel Grid.Column="1" Margin="0, 40">
-                            <TextBlock x:Name="HallName" Text="Hall of Fame" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock x:Name="HallLocation" Text="New York" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock x:Name="HallPrice"  Text="120$" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock x:Name="HallCapacity" Text="120" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBox x:Name="HallName" Text="Hall of Fame" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="HallLocation" Text="New York" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="HallPrice"  Text="120$" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="HallCapacity" Text="120" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
                         </StackPanel>
 
                     </Grid>
 
                     <TextBlock Text="Owner Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28" Grid.Column="1"/>
-                    <Button Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 15" Grid.Column="1" Click="CloseOfferWindow"/>
+                    <Button Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Grid.Column="1" Click="CloseOfferWindow"/>
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition></ColumnDefinition>
@@ -94,7 +99,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Margin="0, 40">
-                            <TextBlock x:Name="OwnerName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
+                            <TextBlock x:Name="OwnerName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" />
                             <TextBlock x:Name="OwnerLastName" Text="Stopczynski" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
                             <TextBlock x:Name="OwnerPhoneNumber" Text="501 232 123" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
                             <TextBlock x:Name="OwnerEmail" Height="60" TextWrapping="Wrap" Text="dsadasdassadsa@gmail.com" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
@@ -105,7 +110,85 @@
 
                 
             </Grid>
-            <FlowDocumentReader Grid.Row="1" x:Name="DocReader"/>
+
+
+            <Grid Grid.Row="1">
+
+                <!-- Set the styles for the tool bar. -->
+                <Grid.Resources>
+                    <Style TargetType="{x:Type Button}" x:Key="formatTextStyle">
+                        <Setter Property="FontFamily" Value="Palatino Linotype"></Setter>
+                        <Setter Property="Width" Value="30"></Setter>
+                        <Setter Property="FontSize" Value ="14"></Setter>
+                        <Setter Property="CommandTarget" Value="{Binding ElementName=mainRTB}"></Setter>
+                    </Style>
+
+                    <Style TargetType="{x:Type Button}" x:Key="formatImageStyle">
+                        <Setter Property="Width" Value="30"></Setter>
+                        <Setter Property="CommandTarget" Value="{Binding ElementName=mainRTB}"></Setter>
+                    </Style>
+                </Grid.Resources>
+
+                <DockPanel Name="mainPanel">
+
+                    <!-- This tool bar contains all the editing buttons. -->
+                    <ToolBar Name="mainToolBar" Height="30" DockPanel.Dock="Top" Background="White" Visibility="Collapsed">
+                        <ToolBar.Resources>
+                            <Style TargetType="{x:Type ToolBarPanel}">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </ToolBar.Resources>
+
+
+                        <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleBold" ToolTip="Bold">
+                            <materialDesign:PackIcon Kind="FormatBold"/>
+                        </Button>
+                        <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleItalic" ToolTip="Italic">
+                            <materialDesign:PackIcon Kind="FormatItalic"/>
+                        </Button>
+                        <Button Style="{StaticResource formatTextStyle}" Command="EditingCommands.ToggleUnderline" ToolTip="Underline">
+                            <materialDesign:PackIcon Kind="FormatUnderline"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.IncreaseFontSize" ToolTip="Grow Font">
+                            <materialDesign:PackIcon Kind="FormatUppercase"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.DecreaseFontSize" ToolTip="Shrink Font">
+                            <materialDesign:PackIcon Kind="FormatLowercase"/>
+                        </Button>
+
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.ToggleBullets" ToolTip="Bullets">
+                            <materialDesign:PackIcon Kind="FormatListBulleted"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.ToggleNumbering" ToolTip="Numbering">
+                            <materialDesign:PackIcon Kind="FormatListNumbered"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignLeft" ToolTip="Align Left">
+                            <materialDesign:PackIcon Kind="FormatAlignLeft"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignCenter" ToolTip="Align Center">
+                            <materialDesign:PackIcon Kind="FormatAlignCenter"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignRight" ToolTip="Align Right">
+                            <materialDesign:PackIcon Kind="FormatAlignRight"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.AlignJustify" ToolTip="Align Justify">
+                            <materialDesign:PackIcon Kind="FormatAlignJustify"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.IncreaseIndentation" ToolTip="Increase Indent">
+                            <materialDesign:PackIcon Kind="FormatIndentIncrease"/>
+                        </Button>
+                        <Button Style="{StaticResource formatImageStyle}" Command="EditingCommands.DecreaseIndentation" ToolTip="Decrease Indent">
+                            <materialDesign:PackIcon Kind="FormatIndentDecrease"/>
+                        </Button>
+
+                    </ToolBar>
+
+                    <!-- By default pressing tab moves focus to the next control. Setting AcceptsTab to true allows the 
+           RichTextBox to accept tab characters. -->
+                    <RichTextBox x:Name="DocReader" AcceptsTab="True" IsReadOnly="true"></RichTextBox>
+                </DockPanel>
+            </Grid>
+
         </Grid>
     </Grid>
 </Window>

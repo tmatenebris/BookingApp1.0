@@ -22,7 +22,7 @@ namespace BookingApp1._0
     public partial class FilterScreen : Window
     {
         public Filters Filters = new Filters();
-
+        public int closing_mode = 0;
         public FilterScreen()
         {
             InitializeComponent();
@@ -31,10 +31,10 @@ namespace BookingApp1._0
             Filters filter_info = XMLSerialize.Deserialize<Filters>(result);
 
             Locations.ItemsSource = filter_info.locations;
-            MaterialDesignThemes.Wpf.HintAssist.SetHint(LowCapacity, filter_info.from_capacity);
-            MaterialDesignThemes.Wpf.HintAssist.SetHint(HighCapacity, filter_info.to_capacity);
-            MaterialDesignThemes.Wpf.HintAssist.SetHint(LowPrice, filter_info.from_price);
-            MaterialDesignThemes.Wpf.HintAssist.SetHint(HighPrice, filter_info.to_price);
+            MaterialDesignThemes.Wpf.HintAssist.SetHint(LowCapacity, "Min: "+filter_info.from_capacity);
+            MaterialDesignThemes.Wpf.HintAssist.SetHint(HighCapacity, "Max: " + filter_info.to_capacity);
+            MaterialDesignThemes.Wpf.HintAssist.SetHint(LowPrice, "Min: " + filter_info.from_price);
+            MaterialDesignThemes.Wpf.HintAssist.SetHint(HighPrice, "Max: " + filter_info.to_price);
         }
 
         private void CloseFilterScreen(object sender, RoutedEventArgs e)
@@ -44,7 +44,7 @@ namespace BookingApp1._0
 
         private void ApplyFilters(object sender, RoutedEventArgs e)
         {
-            
+            closing_mode = 1;
             Filters.location = Locations.Text;
             Filters.from_date = LowDate.Text;
             Filters.to_date = HighDate.Text;

@@ -18,6 +18,7 @@ using Database;
 using TCPConnection;
 using System.Diagnostics;
 using System.Linq;
+using PagedList;
 
 namespace BookingApp1._0.Views
 {
@@ -27,203 +28,229 @@ namespace BookingApp1._0.Views
     public partial class MainListView : UserControl
     {
 
-        private  PagingCollectionView<HallDTO> _cview;
-        private PagingCollectionView<HallDTO> _cviewFilterable;
-        private PagingCollectionView<HallDTO> _nameFiltered;
-        private string prevDataContext;
-        private string currentDataContext;
-        private string filterString;
+        private IPagedList<HallDTO> _cview;
+        private List<HallDTO> _filtered;
+        private List<HallDTO> _halls;
+        private List<HallDTO> _sorted;
+        private string current_view = "normal";
+        private int pageNumber = 1;
+
+
+        
         public MainListView()
         {
             InitializeComponent();
-            string response = TCPClient.ServerRequestWithResponse("GetHalls");
-            Debug.WriteLine(response);
-            List<HallDTO> halls = new List<HallDTO>();
 
-            halls = XMLSerialize.Deserialize<List<HallDTO>>(response);
-
-            this._cview = new PagingCollectionView<HallDTO>(halls, 7);
-            this.DataContext = this._cview;
-            currentDataContext = "cview";
-            //Task.Run(() => FillGridBase()).ConfigureAwait(false);
+            Loaded += MainListView_Load;
+          
         }
 
-     
-        private void FillGridBase()
+        private async Task<IPagedList<HallDTO>> GetPagedListAsync(int pageNumber = 1, int pageSize = 7)
         {
-            string response;
-            while (true)
+            return await Task.Factory.StartNew(() =>
             {
-                string request = "GetHallsNotIn: ";
-                foreach (HallDTO hall in this._cview)
-                {
-                    if (request == "GetHallsNotIn: ") request += hall.HallId.ToString();
-                    else request += ", " + hall.HallId.ToString();
-                }
+                if (current_view == "normal") return _halls.ToPagedList(pageNumber, pageSize);
+                else return _filtered.ToPagedList(pageNumber, pageSize);
+            });
 
-               
-                List<HallDTO> tmphalls = new List<HallDTO>();
+        }
 
-                response = TCPClient.ServerRequestWithResponse(request);
-                if (response == "empty") break;
-                tmphalls = XMLSerialize.Deserialize<List<HallDTO>>(response);
 
-                this._cview.AddRange(tmphalls);
+
+        private async Task<List<HallDTO>> GetHallsAsync()
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                string response = TCPClient.ServerRequestWithResponse("GetHalls");
+                List<HallDTO> bookings = new List<HallDTO>();
+                bookings = XMLSerialize.Deserialize<List<HallDTO>>(response);
+                return bookings;
+            });
+        }
+
+        private async Task<List<HallDTO>> GetFiltredHallsAsync(Filters filtersToApply)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                string request = XMLSerialize.Serialize<Filters>(filtersToApply);
+                string response = TCPClient.ServerRequestWithResponse("[(GET_FILTERED_DATA)]"+request);
+                List<HallDTO> bookings = new List<HallDTO>();
+                bookings = XMLSerialize.Deserialize<List<HallDTO>>(response);
+                return bookings;
+            });
+        }
+
+        private async void MainListView_Load(object sender, EventArgs e)
+        {
+            ProgressBar.IsIndeterminate = true;
+            _halls = await GetHallsAsync();
+            _cview = await GetPagedListAsync();
+            ProgressBar.IsIndeterminate = false;
+            SearchBy.Items.Add("Name");
+            SearchBy.Items.Add("Location");
+            Order_By.Items.Add("Name");
+            Order_By.Items.Add("Location");
+            Order_By.Items.Add("Price");
+            Order_By.Items.Add("Capacitty");
+            Direction.Items.Add("ASCENDING");
+            Direction.Items.Add("DESCENDIG");
+
+            PrevPage.IsEnabled = _cview.HasPreviousPage;
+            NextPage.IsEnabled = _cview.HasNextPage;
+            hallDataGrid.DataContext = _cview.ToList();
+
+        }
+        private async void OnPreviousClicked(object sender, RoutedEventArgs e)
+        {
+            if (_cview.HasPreviousPage)
+            {
+                _cview = await GetPagedListAsync(--pageNumber);
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                hallDataGrid.DataContext = _cview.ToList();
+                Number.Text = pageNumber.ToString();
             }
         }
-        
-        private void FillGridFilter(Filters filtersToApply)
+
+        private async void OnNextClicked(object sender, RoutedEventArgs e)
         {
-            string request, response;
-            while (true)
+            if (_cview.HasNextPage)
             {
-                filtersToApply.idsstring = "";
-                foreach (HallDTO hall in this._cviewFilterable)
-                {
-                    if (filtersToApply.idsstring == "") filtersToApply.idsstring += hall.HallId.ToString();
-                    else filtersToApply.idsstring += ", " + hall.HallId.ToString();
-                }
-
-                List<HallDTO> tmphalls = new List<HallDTO>();
-                request = XMLSerialize.Serialize<Filters>(filtersToApply);
-                response = TCPClient.ServerRequestWithResponse(request);
-                if (response == "empty") break;
-                tmphalls = XMLSerialize.Deserialize<List<HallDTO>>(response);
-
-                this._cviewFilterable.AddRange(tmphalls);
+                _cview = await GetPagedListAsync(++pageNumber);
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                hallDataGrid.DataContext = _cview.ToList();
+                Number.Text = pageNumber.ToString();
             }
         }
-        private void OnPreviousClicked(object sender, RoutedEventArgs e)
-        {
-            if (currentDataContext == "cview") this._cview.MoveToPreviousPage();
-            else if (currentDataContext == "filter") this._cviewFilterable.MoveToPreviousPage();
-            else if (currentDataContext == "tmp_paging") this._nameFiltered.MoveToPreviousPage();
-        }
 
-        private void OnNextClicked(object sender, RoutedEventArgs e)
-        {
-            if (currentDataContext == "cview") this._cview.MoveToNextPage();
-            else if (currentDataContext == "filter") this._cviewFilterable.MoveToNextPage();
-            else if (currentDataContext == "tmp_paging") this._nameFiltered.MoveToNextPage();
-        }
-
-        private void OpenFiltersWindow(object sender, RoutedEventArgs e)
+        private async void OpenFiltersWindow(object sender, RoutedEventArgs e)
         {
             FilterScreen win = new FilterScreen();
-            if(win.ShowDialog() == false)
+            if (win.ShowDialog() == false)
             {
-                Filters filtersToApply = new Filters();
-                filtersToApply.location = win.Filters.location;
-                filtersToApply.from_price = win.Filters.from_price;
-                filtersToApply.to_price = win.Filters.to_price;
-                filtersToApply.from_capacity = win.Filters.from_capacity;
-                filtersToApply.to_capacity = win.Filters.to_capacity;
-                filtersToApply.from_date = win.Filters.from_date;
-                filtersToApply.to_date = win.Filters.to_date;
+                if (win.closing_mode == 1)
+                {
+                    Filters filtersToApply = new Filters();
 
-                string request = XMLSerialize.Serialize<Filters>(filtersToApply);
-                string response = TCPClient.ServerRequestWithResponse(request);
+                    filtersToApply.location = win.Filters.location;
+                    filtersToApply.from_price = win.Filters.from_price;
+                    filtersToApply.to_price = win.Filters.to_price;
+                    filtersToApply.from_capacity = win.Filters.from_capacity;
+                    filtersToApply.to_capacity = win.Filters.to_capacity;
+                    filtersToApply.from_date = win.Filters.from_date;
+                    filtersToApply.to_date = win.Filters.to_date;
 
-            
-               List<HallDTO> halls = new List<HallDTO>();
-               if(response != "empty")halls = XMLSerialize.Deserialize<List<HallDTO>>(response);
-               this._cviewFilterable = new PagingCollectionView<HallDTO>(halls, 7);
-               this.DataContext = this._cviewFilterable;
-                currentDataContext = "filter";
-                Task.Run(() => FillGridFilter(filtersToApply)).ConfigureAwait(false);
+                    ProgressBar.IsIndeterminate = true;
+                    _filtered = await GetFiltredHallsAsync(filtersToApply);
+                    _cview = await GetPagedListAsync(1);
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    ProgressBar.IsIndeterminate = false;
+                    hallDataGrid.DataContext = _cview.ToList();
 
+                    current_view = "filtered";
+                }
             }
         }
 
         private void ShowOffer(object sender, MouseButtonEventArgs e)
         {
-           var clicked = hallDataGrid.SelectedItem as HallDTO;
 
-            //Txt.Text = clicked.HallId.ToString();
-            
-            OfferScreen win = new OfferScreen(clicked.HallId);
-            win.ShowDialog();
         }
 
-        private void BackToBasic(object sender, RoutedEventArgs e)
+
+        private async Task<IPagedList<HallDTO>> GetPagedListAsyncNameFiltered(string name, int pageNumber = 1, int pageSize = 7)
         {
-            this.DataContext = _cview;
-            currentDataContext = "cview";
+            return await Task.Factory.StartNew(() =>
+            {
+                if (current_view == "normal")  return _halls.Where(s => s.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
+                else return _filtered.Where(s => s.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
+            });
+
+
         }
 
-        private bool Comp(object obj)
+        private async Task<IPagedList<HallDTO>> GetPagedListAsyncFromCview(int pageNumber = 1, int pageSize = 7)
         {
-            HallDTO s = obj as HallDTO;
-            return s.Name.Contains(filterString);
-            
-           
-        }
-        private void FilterByName(object sender, TextChangedEventArgs e)
-        {
-            TextBox senderTextBox = sender as TextBox;
-            filterString = senderTextBox.Text;
-            List<HallDTO> list = null;
-            if (currentDataContext == "cview")
+            return await Task.Factory.StartNew(() =>
             {
-                list = new List<HallDTO>(this._cview.GetInner());
-                prevDataContext = "cview";
+                return _cview.ToList().OrderBy(s=>s.Price).ToPagedList(pageNumber, pageSize);
+            });
 
-            }
-            else if(currentDataContext == "filter")
+
+        }
+
+        private async Task<IPagedList<HallDTO>> GetPagedListAsyncLocationFiltered(string location, int pageNumber = 1, int pageSize = 7)
+        {
+            return await Task.Factory.StartNew(() =>
             {
-                list = new List<HallDTO>(this._cviewFilterable.GetInner());
-                prevDataContext = "filter";
-            }
-            else
+                if (current_view == "normal") return _halls.Where(s => s.Location.Contains(location, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
+                else return _filtered.Where(s => s.Location.Contains(location, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
+            });
+
+        }
+
+
+        private async void FilterBy(object sender, TextChangedEventArgs e)
+        {
+            if (txtFilter.Text != String.Empty)
             {
-                if(prevDataContext == "cview")
+                SearchBy.IsEnabled = false;
+                if (SearchBy.Text == "Name")
                 {
-                    list = new List<HallDTO>(this._cview.GetInner());
+                    _cview = await GetPagedListAsyncNameFiltered(txtFilter.Text, 1);
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    hallDataGrid.DataContext = _cview.ToList();
+                    pageNumber = 1;
+                    Number.Text = pageNumber.ToString();
                 }
-                else
+                else if (SearchBy.Text == "Location")
                 {
-                    list = new List<HallDTO>(this._cviewFilterable.GetInner());
+                    _cview = await GetPagedListAsyncLocationFiltered(txtFilter.Text, 1);
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    hallDataGrid.DataContext = _cview.ToList();
+                    pageNumber = 1;
+                    Number.Text = pageNumber.ToString();
                 }
-            }
-            
-
-
-            List<HallDTO> filtred = list.Where(x => x.Name.Contains(filterString) == true).ToList();
-            _nameFiltered = new PagingCollectionView<HallDTO>(filtred, 7);
-            
-            if(filterString == String.Empty)
-            {
                 
-                if(currentDataContext == "cview")
-                {
-                    this.DataContext = _cview;
-                    currentDataContext = "cview";
-                }
-                else if (currentDataContext == "filter")
-                {
-                    this.DataContext = _cviewFilterable;
-                    currentDataContext = "filter";
-                }
-                else
-                {
-                    if (prevDataContext == "cview")
-                    {
-                        this.DataContext = _cview;
-                        currentDataContext = "cview";
-                    }
-                    else
-                    {
-                        this.DataContext = _cviewFilterable;
-                        currentDataContext = "filter";
-                    }
-                }
+               
             }
             else
             {
-                this.DataContext = _nameFiltered;
-                currentDataContext = "tmp_paging";
+                SearchBy.IsEnabled = true;
+               
+                _cview = await GetPagedListAsync(1);
+                hallDataGrid.DataContext = _cview.ToList();
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                pageNumber = 1;
+                Number.Text = pageNumber.ToString();
             }
         }
 
+        private async void BackToBasic(object sender, RoutedEventArgs e)
+        {
+
+            _cview = await GetPagedListAsync(1);
+            PrevPage.IsEnabled = _cview.HasPreviousPage;
+            NextPage.IsEnabled = _cview.HasNextPage;
+            hallDataGrid.DataContext = _cview.ToList();
+            pageNumber = 1;
+            Number.Text = pageNumber.ToString();
+        }
+
+        private async void OrderBy(object sender, RoutedEventArgs e)
+        {
+            current_view = "normal";
+            _cview = await GetPagedListAsyncFromCview(1);
+            PrevPage.IsEnabled = _cview.HasPreviousPage;
+            NextPage.IsEnabled = _cview.HasNextPage;
+            hallDataGrid.DataContext = _cview.ToList();
+            pageNumber = 1;
+            Number.Text = pageNumber.ToString();
+        }
     }
 }

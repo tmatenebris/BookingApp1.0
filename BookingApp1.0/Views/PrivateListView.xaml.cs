@@ -61,8 +61,10 @@ namespace BookingApp1._0.Views
 
         private async void PrivateListView_Load(object sender, EventArgs e)
         {
+            ProgressBar.IsIndeterminate = true;
             _users = await GetMyHallsAsync();
             _cview = await GetPagedListAsync();
+            ProgressBar.IsIndeterminate = false;
             PrevPage.IsEnabled = _cview.HasPreviousPage;
             NextPage.IsEnabled = _cview.HasNextPage;
             MyHallsGrid.DataContext = _cview.ToList();

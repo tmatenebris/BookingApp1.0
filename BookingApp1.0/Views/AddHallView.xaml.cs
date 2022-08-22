@@ -28,6 +28,8 @@ namespace BookingApp1._0.Views
     /// </summary>
     public partial class AddHallView : UserControl
     {
+
+        private BitmapImage thumb50x50;
         public AddHallView()
         {
             InitializeComponent();
@@ -42,9 +44,11 @@ namespace BookingApp1._0.Views
             if(fileDialog.ShowDialog() == true)
             {
                 Bitmap orig = (Bitmap)System.Drawing.Image.FromFile(fileDialog.FileName);
-                Bitmap resized = new Bitmap(orig, new System.Drawing.Size(450, 300));   
+                Bitmap resized = new Bitmap(orig, new System.Drawing.Size(450, 300));
+                Bitmap res = new Bitmap(orig, new System.Drawing.Size(50, 50));
+                thumb50x50 = ToBitmapImage(res);
                 BitmapImage img = ToBitmapImage(resized);
-                
+              
                 Thumbnail.Source = img;
             }
         }
@@ -52,7 +56,7 @@ namespace BookingApp1._0.Views
         private void UploadOffer(object sender, RoutedEventArgs e)
         {
             HallDTO new_hall = new HallDTO();
-
+     
             new_hall.OwnerId = TCPConnection.TCPClient.GetUserId();
             new_hall.Name = NameSet.Text;
             new_hall.Location = LocationSet.Text;
@@ -60,10 +64,15 @@ namespace BookingApp1._0.Views
             new_hall.Capacity = int.Parse(CapacitySet.Text);
             new_hall.Description = GetXaml(DescRTB);
             
-            BitmapImage image = Thumbnail.Source as BitmapImage;
-            if (image == null) image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory()+"/Assets/image-placeholder.png"));
-            new_hall.Image = getJPGFromImageControl(image);
 
+            BitmapImage image = Thumbnail.Source as BitmapImage;
+            if (image == null)
+            {
+                image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+                thumb50x50 = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+            }
+            new_hall.Image = getJPGFromImageControl(image);
+            new_hall.ThumbnailImage = getJPGFromImageControl(thumb50x50);
             string response = TCPConnection.TCPClient.ServerRequestWithResponse(XMLSerialize.Serialize<HallDTO>(new_hall));
             if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
             else MessageBox.Show("Succeed");

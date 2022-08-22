@@ -8,7 +8,8 @@ namespace Database.Models
     {
         public User()
         {
-            Bookings = new HashSet<Booking>();
+            BookingOwners = new HashSet<Booking>();
+            BookingUsers = new HashSet<Booking>();
             Halls = new HashSet<Hall>();
         }
 
@@ -22,9 +23,13 @@ namespace Database.Models
         public string Role { get; set; } = null!;
 
         [XmlIgnore]
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<Booking> BookingOwners { get; set; }
+
+        [XmlIgnore]
+        public virtual ICollection<Booking> BookingUsers { get; set; }
 
         [XmlIgnore]
         public virtual ICollection<Hall> Halls { get; set; }
+
     }
 }
