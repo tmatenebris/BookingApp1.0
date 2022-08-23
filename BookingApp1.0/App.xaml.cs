@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Database.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,7 +14,7 @@ namespace BookingApp1._0
     /// </summary>
     public partial class App : Application
     {
- 
+        public static User appuser;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

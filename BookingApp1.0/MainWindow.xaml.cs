@@ -47,6 +47,7 @@ namespace BookingApp1._0
                 User user = new User();
                 user = XMLSerialize.Deserialize<User>(response);
                 UserInterface win = new UserInterface(user);
+                App.appuser = user;
                 //TCPClient.SetUserId(user.UserId);
                 win.Show();
                 App.Current.MainWindow.Close();

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:fa ="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
            
              mc:Ignorable="d" 
              d:DesignHeight="740" d:DesignWidth="1030">
@@ -53,6 +54,16 @@
                     <DataGridTextColumn Header="Location" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Location}"/>
                     <DataGridTextColumn Header="Price" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Price}"/>
                     <DataGridTextColumn Header="Capacity" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Capacity}"/>
+
+                    <DataGridTemplateColumn x:Name="AdminPanel"  Header="Operations" IsReadOnly="True" Width="auto" Visibility="Hidden">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="DeleteHall" Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteHall">
+                                    <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -62,7 +73,7 @@
 
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Grid.Row="3" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Content="Order By" HorizontalAlignment="Left" Margin="0" Click="OrderBy" Cursor="Hand"/>
+                <Button  x:Name="OrderButton"  Grid.Row="3" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Content="Order By" HorizontalAlignment="Left" Margin="0" Click="OrderBy" Cursor="Hand"/>
                 <ComboBox x:Name="Order_By" Width="100" Margin="20 0 20 0" />
                 <ComboBox x:Name="Direction" Width="100" Margin="20 0 20 0" />
 
@@ -81,9 +92,10 @@
                         <fa:IconImage Icon="AngleLeft" Style="{StaticResource pagingButtonIcon}"/>
 
                     </Button>
-                    <Rectangle Width="1" Fill="#dee4ec" Margin="3 7"></Rectangle>
+                    
                     
                     <TextBlock x:Name="Number" Text="1" Width="20"/>
+                    <TextBlock Text="/" Width="20"/>
                     <TextBlock x:Name="MaxNumber" Text="1" Width="20"/>
 
                     <Button Style="{StaticResource pagingButton}" Click="OnNextClicked" x:Name="NextPage">

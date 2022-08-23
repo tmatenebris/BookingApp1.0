@@ -35,9 +35,9 @@ namespace BookingApp1._0
             user.Email = EMail.Text;
             user.PhoneNumber = PhoneNumber.Text;
             user.Password = Password.Password;
-            user.Role = "user";
+            
 
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse(XMLSerialize.Serialize<User>(user));
+            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_USER)]"+XMLSerialize.Serialize<User>(user));
 
             if(response == "succeed")
             {

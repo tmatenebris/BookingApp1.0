@@ -133,21 +133,24 @@ namespace TCPConnection
                         }
                     }
                     content = content.Replace("<EOF>", "");
-                    if (content.IndexOf("<User/>") != -1)
+                    if (content.IndexOf("[(ADD_USER)]") != -1)
                     {
+                        content = content.Replace("[(ADD_USER)]", "");
                         //Console.WriteLine("Recieved user packagge!");
 
                         ///string result = databaseConnection.RegisterUser(new_us);
-                        string result = " ";
+                        string result = "error";
                         //byte[] data = Encoding.ASCII.GetBytes(result);
                         //current.clientSocket.Send(data);
-                        User new_user = XMLSerialize.Deserialize<User>(content);
+                        Console.WriteLine(content);
                         using (var context = new BookingAppContext())
                         {
                             try
                             {
+                                User new_user = XMLSerialize.Deserialize<User>(content);
                                 context.Database.ExecuteSqlRaw("create user " + new_user.Username + " with password '" + new_user.Password + "'");
                                 context.Database.ExecuteSqlRaw("alter group users add user " + new_user.Username);
+                                new_user.Role = "user";
 
                                 context.Users.Add(new_user);
 
@@ -158,10 +161,12 @@ namespace TCPConnection
                             }
                             catch (Exception ex)
                             {
-                                result = "error";
-                                Send(handler, result+"<EOF>");
+                              
+                               Send(handler, result+"<EOF>");
                             }
                         }
+
+                        
                     }
                     else if (content.IndexOf("[(UPDATE)]") > -1)
                     {
@@ -305,7 +310,32 @@ namespace TCPConnection
                             }
                         }
                     }
-                    else if (content.IndexOf("[(GET_FILTERED_DATA)]") != -1)
+                    else if (content.IndexOf("[(DELETE_HALL)]:") > -1)
+                    {
+                        content = content.Replace("[(DELETE_HALL)]:", "");
+                        content  = content.Replace("(", "");
+                        content = content.Replace(")", "");
+                        string result = "error";
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                int hall_id = Convert.ToInt32(content);
+                                context.Remove(context.Imagesandescs.Single(s => s.HallId == hall_id));
+                                context.SaveChanges();
+                                context.Remove(context.Halls.Single(s => s.HallId == hall_id));
+                                context.SaveChanges();
+
+                                result = "succeed";
+                                Send(handler, result + "<EOF>");
+                            }
+                            catch (Exception ex)
+                            {
+                                Send(handler, result + "<EOF>");
+                            }
+                        }
+                    }
+                    else if (content.IndexOf("[(GET_FILTERED_DATA)]") > -1)
                     {
                         content = content.Replace("[(GET_FILTERED_DATA)]", "");
                         Console.WriteLine(content);
@@ -425,7 +455,7 @@ namespace TCPConnection
                         ///byte[] data = Encoding.ASCII.GetBytes(result);
                         ///current.clientSocket.Send(data);
                     }
-                    else if (content == "GetUsers")
+                    else if (content == "[(GetUsers)]")
                     {
                         //string result = current.databaseConnection.GetUsers()var query
 
@@ -498,6 +528,7 @@ namespace TCPConnection
                     {
                         string login = content.Split('<', '>')[1];
                         string password = content.Split('<', '>')[3];
+                        Console.WriteLine(login + password);
                         //Console.WriteLine(login);
                         //Console.WriteLine(password);
                         current.options = new DbContextOptionsBuilder<BookingAppContext>();
@@ -506,22 +537,22 @@ namespace TCPConnection
                         ///string uid = databaseConnection.Login(login, password);
                         ///
                         string result = "unknown";
-                        using (var context = new BookingAppContext(current.options.Options))
+                        using (var context = new BookingAppContext())
                         {
-                            try
-                            {
+                            //try
+                            //{
                             var user = context.Users.Where(s => s.Username == login && s.Password == password).First();
 
                             result = XMLSerialize.Serialize<User>(user);
                             Console.WriteLine(result);
                                 current.UserId = user.UserId;
                             Send(handler, result+"<EOF>");
-                            }
-                            catch(Exception ex)
-                            {
-                                Send(handler, result + "<EOF>");
-                            }
-
+                           // }
+                           // catch(Exception ex)
+                            //{
+                           //    Send(handler, result + "<EOF>");
+                           // }
+                        
                         }
                         ///if (uid != "unknown")
                         //{
@@ -535,7 +566,7 @@ namespace TCPConnection
                     else if (content == "GetIdFromServer")
                     {
                         string result = "error";
-                        using (var context = new BookingAppContext(current.options.Options))
+                        using (var context = new BookingAppContext())
                         {
                             try
                             {

@@ -21,7 +21,7 @@ namespace BookingApp1._0
     /// </summary>
     public partial class UserInterface : Window
     {
-        
+       
         public UserInterface(User user)
         {
             InitializeComponent();
@@ -30,6 +30,7 @@ namespace BookingApp1._0
             UserInitials.Text = user.FirstName.Substring(0, 1).ToUpper() + user.LastName.Substring(0, 1).ToUpper(); 
             if(user.Role == "user")
             {
+                
                 UsersButton.Visibility = Visibility.Collapsed;
             }
         }
