@@ -31,7 +31,7 @@ namespace BookingApp1._0
         {
             InitializeComponent();
             offerHall = current;
-            if(offerHall.OwnerId == TCPConnection.TCPClient.GetUserId())
+            if((offerHall.OwnerId == App.appuser.UserId) || (App.appuser.Role == "admin"))
             {
                 BookButton.Visibility = Visibility.Hidden;
                 UpdateButton.Visibility = Visibility.Visible;
@@ -44,6 +44,7 @@ namespace BookingApp1._0
                 HallLocation.IsReadOnly = false;
                 HallCapacity.IsReadOnly = false;
                 UploadButton.Visibility = Visibility.Visible;
+                Block.Visibility = Visibility.Hidden;
             }
            
             string result = TCPConnection.TCPClient.ServerRequestWithResponse("GetOffer: <" + offerHall.HallId.ToString() + ">");
@@ -58,8 +59,8 @@ namespace BookingApp1._0
                 HallCapacity.Text = curr_offer.Capacity.ToString();
                 OwnerEmail.Text = curr_offer.Email;
                 OwnerName.Text = curr_offer.FirstName;
-                OwnerLastName.Text = curr_offer.LastName;
-                OwnerPhoneNumber.Text = curr_offer.PhoneNumber;
+                OwnerSurname.Text = curr_offer.LastName;
+                OwnerPhone.Text = curr_offer.PhoneNumber;
                 OfferThumbnail.Source = ByteToImage(curr_offer.Image);
 
                 DocReader.Document = SetRTF(curr_offer.Description);
@@ -75,16 +76,17 @@ namespace BookingApp1._0
         {
             Booking new_booking = new Booking();
 
-            new_booking.UserId = TCPConnection.TCPClient.GetUserId();
+            new_booking.UserId = App.appuser.UserId;
             new_booking.HallId = offerHall.HallId;
             new_booking.OwnerId = offerHall.OwnerId;
             new_booking.FromDate = new DateOnly(FromDate.SelectedDate.Value.Year, FromDate.SelectedDate.Value.Month, FromDate.SelectedDate.Value.Day);
             new_booking.ToDate = new DateOnly(ToDate.SelectedDate.Value.Year, ToDate.SelectedDate.Value.Month, ToDate.SelectedDate.Value.Day);
+            var date = ToDate.SelectedDate.Value - FromDate.SelectedDate.Value;
+            new_booking.TotalPrice = date.Days * offerHall.Price;
 
 
-
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse(XMLSerialize.Serialize<Booking>(new_booking));
-            if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
+            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_BOOKING)]"+XMLSerialize.Serialize<Booking>(new_booking));
+            if (response == "error") MessageBox.Show("Error");
             else MessageBox.Show("Succeed");
         }
 

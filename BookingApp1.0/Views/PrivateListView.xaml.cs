@@ -140,13 +140,18 @@ namespace BookingApp1._0.Views
 
         private async void OpenFiltersWindow(object sender, RoutedEventArgs e)
         {
-            FilterScreen win = new FilterScreen();
+
+            string result = TCPConnection.TCPClient.ServerRequestWithResponse("[(GET_USER_FILTERS_INITIAL)]:("+App.appuser.UserId.ToString()+")");
+
+            Filters filter_info = XMLSerialize.Deserialize<Filters>(result);
+
+            FilterScreen win = new FilterScreen(filter_info);
             if (win.ShowDialog() == false)
             {
                 if (win.closing_mode == 1)
                 {
                     Filters filtersToApply = new Filters();
-
+                    filtersToApply.userid = App.appuser.UserId;
                     filtersToApply.location = win.Filters.location;
                     filtersToApply.from_price = win.Filters.from_price;
                     filtersToApply.to_price = win.Filters.to_price;
@@ -174,7 +179,10 @@ namespace BookingApp1._0.Views
 
         private void ShowOffer(object sender, MouseButtonEventArgs e)
         {
-
+            var clicked = hallDataGrid.SelectedItem as HallDTO;
+            OfferScreen win = new OfferScreen(clicked);
+            MessageBox.Show(clicked.HallId.ToString());
+            win.ShowDialog();
         }
 
 

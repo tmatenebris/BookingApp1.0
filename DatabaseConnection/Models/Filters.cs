@@ -18,6 +18,8 @@ namespace Database.Models
         public string location { get; set; }
 
         public string idsstring { get; set; }
+
+        public int userid { get; set; }
         public List<string> locations = new List<string>();
     }
 

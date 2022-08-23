@@ -338,22 +338,22 @@ namespace BookingApp1._0.Views
         }
 
 
-        private async Task<string> ServerRequest(int hall_id)
+        private async Task<string> DeleteRequest(int user_id)
         {
             return await Task.Factory.StartNew(() =>
             {
-                string response = TCPClient.ServerRequestWithResponse("[(DELETE_USER)]:(" + hall_id.ToString() + ")");
+                string response = TCPClient.ServerRequestWithResponse("[(DELETE_USER)]:(" + user_id.ToString() + ")");
                 return response;
             });
         }
 
 
-        private async void DeleteHall(object sender, RoutedEventArgs e)
+        private async void DeleteUser(object sender, RoutedEventArgs e)
         {
             var clicked = UsersGrid.SelectedItem as User;
 
 
-            string response = await ServerRequest(clicked.UserId);
+            string response = await DeleteRequest(clicked.UserId);
 
             if (response == "error") MessageBox.Show("Unable to delete Hall");
             else

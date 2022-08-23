@@ -54,57 +54,54 @@
                     <TextBlock Text="Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28"/>
                     <DockPanel HorizontalAlignment="Center" Margin="0,150,0,0">
                         <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White" x:Name="FromDate"/>
-                        <TextBlock Text="To" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="12" Width="50" TextAlignment="Center"/>
+                        <TextBlock x:Name="Block"  Text="To" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="12" Width="50" TextAlignment="Center"/>
                         <DatePicker Style="{StaticResource MaterialDesignDatePicker}" Width="80" Background="White"  x:Name="ToDate"/>
                     </DockPanel>
                     <Button x:Name="BookButton"  Content="Book" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Click="Book" Cursor="Hand"/>
                     <Button x:Name="UpdateButton" Content ="Update" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Click="UpdateOffer" Visibility="Hidden" Cursor="Hand"/>
+
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0 50">
+                        <DockPanel  Margin="0">
+                            <TextBox Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                            <TextBox x:Name="HallName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="Location:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="HallLocation" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="Price" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                            <TextBox x:Name="HallPrice" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="Capacity" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                            <TextBox x:Name="HallCapacity" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Top" Margin="0 50">
+                        <DockPanel  Margin="0">
+                            <TextBox Text="First Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="OwnerName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="LastName:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                            <TextBox x:Name="OwnerSurname" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"  materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="Phone Number:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="OwnerPhone" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                        <DockPanel  Margin="0">
+                            <TextBox Text="EMail:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
+                            <TextBox x:Name="OwnerEmail" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                        </DockPanel>
+                    </StackPanel>
                     
-                    <Grid Grid.Column="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Grid.Column="0" Margin="0, 40">
-                            <TextBlock Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Foreground="White" FontSize="14" />
-                            <TextBlock  Text="Location:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock Text="Price:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock  Text="Capacity:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                        </StackPanel>
-
-                        
-
-                        <StackPanel Grid.Column="1" Margin="0, 40">
-                            <TextBox x:Name="HallName" Text="Hall of Fame" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
-                            <TextBox x:Name="HallLocation" Text="New York" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
-                            <TextBox x:Name="HallPrice"  Text="120$" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
-                            <TextBox x:Name="HallCapacity" Text="120" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" IsReadOnly="True" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>
-                        </StackPanel>
-
-                    </Grid>
 
                     <TextBlock Text="Owner Info:" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10"  Foreground="White" FontSize="28" Grid.Column="1"/>
                     <Button Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 30" Grid.Column="1" Click="CloseOfferWindow"/>
-                    <Grid Grid.Column="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Margin="0, 40">
-                            <TextBlock Text="First Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock Text="Last Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock Text="Phone Number:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock Text="E-Mail:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                        </StackPanel>
 
-                        <StackPanel Grid.Column="1" Margin="0, 40">
-                            <TextBlock x:Name="OwnerName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" />
-                            <TextBlock x:Name="OwnerLastName" Text="Stopczynski" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock x:Name="OwnerPhoneNumber" Text="501 232 123" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                            <TextBlock x:Name="OwnerEmail" Height="60" TextWrapping="Wrap" Text="dsadasdassadsa@gmail.com" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14"/>
-                        </StackPanel>
-                    </Grid>
                   
                 </Grid>
 

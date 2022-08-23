@@ -48,11 +48,12 @@
                     <DataGridTextColumn Header="Hall Name" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Name}"/>
                     <DataGridTextColumn Header="From" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding FromDateString}"/>
                     <DataGridTextColumn Header="To" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding ToDateString}"/>
+                    <DataGridTextColumn Header="Total Price" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding TotalPrice}"/>
                     
                     <DataGridTemplateColumn Header="Operations" IsReadOnly="True" Width="auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
+                                <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteBooking">
                                     <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                 </Button>
                             </DataTemplate>

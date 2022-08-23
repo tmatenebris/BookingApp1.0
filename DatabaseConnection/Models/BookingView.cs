@@ -10,6 +10,7 @@ namespace Database.Models
 {
     public partial class BookingView
     {
+        public int? BookingId { get; set; }
         public int? UserId { get; set; }
         public int? OwnerId { get; set; }
         public string? Owner { get; set; }

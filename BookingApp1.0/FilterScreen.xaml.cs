@@ -23,12 +23,10 @@ namespace BookingApp1._0
     {
         public Filters Filters = new Filters();
         public int closing_mode = 0;
-        public FilterScreen()
+        public FilterScreen(Filters filter_info)
         {
             InitializeComponent();
-            string result = TCPConnection.TCPClient.ServerRequestWithResponse("GetFiltersInitial");
 
-            Filters filter_info = XMLSerialize.Deserialize<Filters>(result);
 
             Locations.ItemsSource = filter_info.locations;
             MaterialDesignThemes.Wpf.HintAssist.SetHint(LowCapacity, "Min: "+filter_info.from_capacity);

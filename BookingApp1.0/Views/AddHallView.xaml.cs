@@ -57,7 +57,8 @@ namespace BookingApp1._0.Views
         {
             HallDTO new_hall = new HallDTO();
      
-            new_hall.OwnerId = TCPConnection.TCPClient.GetUserId();
+
+            new_hall.OwnerId = App.appuser.UserId;
             new_hall.Name = NameSet.Text;
             new_hall.Location = LocationSet.Text;
             new_hall.Price = int.Parse(PriceSet.Text);
@@ -73,7 +74,7 @@ namespace BookingApp1._0.Views
             }
             new_hall.Image = getJPGFromImageControl(image);
             new_hall.ThumbnailImage = getJPGFromImageControl(thumb50x50);
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse(XMLSerialize.Serialize<HallDTO>(new_hall));
+            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
             if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
             else MessageBox.Show("Succeed");
         }

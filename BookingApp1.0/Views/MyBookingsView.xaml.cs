@@ -50,7 +50,7 @@ namespace BookingApp1._0.Views
         {
             return await Task.Factory.StartNew(() =>
             {
-                string response = TCPClient.ServerRequestWithResponse("GetMyBookings");
+                string response = TCPClient.ServerRequestWithResponse("[(GET_MY_BOOKINGS)]");
                 List<BookingView> bookings = new List<BookingView>();
                 bookings = XMLSerialize.Deserialize<List<BookingView>>(response);
                 return bookings;
@@ -90,10 +90,30 @@ namespace BookingApp1._0.Views
             }
         }
 
-        private void OpenFiltersWindow(object sender, RoutedEventArgs e)
+
+        private async Task<string> DeleteRequest(int? booking_id)
         {
-            FilterScreen win = new FilterScreen();
-            win.ShowDialog();
+            return await Task.Factory.StartNew(() =>
+            {
+                string response = TCPClient.ServerRequestWithResponse("[(DELETE_BOOKING)]:(" + booking_id.ToString() + ")");
+                return response;
+            });
+        }
+
+
+        private async void DeleteBooking(object sender, RoutedEventArgs e)
+        {
+            var clicked = bookingList.SelectedItem as BookingView;
+
+
+            string response = await DeleteRequest(clicked.BookingId);
+
+            if (response == "error") MessageBox.Show("Unable to delete Booking");
+            else
+            {
+
+            }
+
         }
     }
 }

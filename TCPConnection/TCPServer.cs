@@ -31,7 +31,7 @@ namespace TCPConnection
         public byte[] buffer = new byte[BufferSize];
         // Received data string.  
         public StringBuilder sb = new StringBuilder();
-        public int numero;
+     
     }
     public class TCPServer
     {
@@ -206,13 +206,14 @@ namespace TCPConnection
 
 
                     }
-                    else if (content.IndexOf("HallDTO") != -1)
+                    else if (content.IndexOf("[(ADD_HALL)]") != -1)
                     {
-                       
+
                         ///string result = current.databaseConnection.InsertHall(new_hall);
                         // byte[] data = Encoding.ASCII.GetBytes(result);
                         // current.clientSocket.Send(data);
                         ///
+                        content = content.Replace("[(ADD_HALL)]", "");
                         string result = "error";
                         using (var context = new BookingAppContext(current.options.Options))
                         {
@@ -240,74 +241,72 @@ namespace TCPConnection
                            }
                         }
                     }
-                    else if(content.IndexOf("<Booking/>") > -1)
+                    else if(content.IndexOf("[(ADD_BOOKING)]") > -1)
                     {
                         string result = "error";
+                        content = content.Replace("[(ADD_BOOKING)]", "");
+       
                         using (var context = new BookingAppContext(current.options.Options))
                         {
                             try
+                             {
+
+                            Booking new_booking = XMLSerialize.Deserialize<Booking>(content);
+
+                            DbConnection con = context.Database.GetDbConnection();
+
+                            con.Open();
+                            DbCommand cmd = con.CreateCommand();
+                            Console.WriteLine(new_booking.FromDateString);
+                            Console.WriteLine(new_booking.ToDateString);
+                            cmd.CommandText = "select * from isavailable("+new_booking.HallId+",'"+new_booking.FromDateString+"', '"+new_booking.ToDateString+"')";
+
+                            DbDataReader reader = cmd.ExecuteReader();
+                            int status = 0;
+                            if (reader.HasRows)
                             {
-                                Booking new_booking = XMLSerialize.Deserialize<Booking>(content);
-                                context.Bookings.Add(new_booking);
+                                reader.Read();
+                                status = reader.GetInt32(0);
+
+                            }
+                            if (status != 0) throw new Exception();
+
+                            reader.Close();
+                            con.Close();
+
+
+                            context.Bookings.Add(new_booking);
                                 context.SaveChanges();
 
                                 result = "succeed";
-                                Send(handler, result + "<EOF>");
-                            }
-                            catch (Exception ex)
-                            { 
-                                Send(handler, result + "<EOF>");
-                            }
+                            Send(handler, result + "<EOF>");
+                           }
+                          catch (Exception ex)
+                          { 
+                               Send(handler, result + "<EOF>");
+                          }
                         }
+                        //Send(handler, result + "<EOF>");
                     }
-                    else if (content.IndexOf("GetMyBookings") > -1)
+                    else if (content.IndexOf("[(GET_MY_BOOKINGS)]") > -1)
                     {
                         string result = "error";
+                        content = content.Replace("[(GET_MY_BOOKINGS)]", "");
                         using (var context = new BookingAppContext(current.options.Options))
                         {
-                            try
-                            {
+                          //  try
+                          //  {
                                 List<BookingView> booking_list = new List<BookingView>();
                                 booking_list = context.Bookingviews.Where(s => s.UserId == current.UserId).ToList();
                                
                                 result = XMLSerialize.Serialize<List<BookingView>>(booking_list);
                                 Console.WriteLine(result);
                                 Send(handler, result + "<EOF>");
-                            }
-                            catch (Exception ex)
-                            {
-                                Send(handler, result + "<EOF>");
-                            }
-                        }
-                    }
-                    else if (content.IndexOf("GetHallsNotIn: ") != -1)
-                    {
-                        content = content.Remove(0, 15);
-                        int[] ids = content.Split(',').Select(Int32.Parse).ToArray();
-                        /// result = current.databaseConnection.GetHallsNotIn(text);
-                        ///byte[] data = Encoding.ASCII.GetBytes(result);
-                        ///current.clientSocket.Send(data);
-                        ///
-                        string result = "empty";
-                        using (var context = new BookingAppContext(current.options.Options))
-                        {
-                            try
-                            {
-                                var halls = context.Halls.Where(s => (!ids.Contains(s.HallId))).Take(1).ToList();
-                                if (!halls.Any()) throw new ArgumentNullException();
-                                List<HallDTO> hallDTOs = new List<HallDTO>();
-                                foreach (var hall in halls)
-                                {
-                                    hallDTOs.Add(new HallDTO(hall));
-                                }
-                                result = XMLSerialize.Serialize<List<HallDTO>>(hallDTOs);
-                                Send(handler, result + "<EOF>");
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Send(handler, result + "<EOF>");
-                            }
+                          //  }
+                          //  catch (Exception ex)
+                          //  {
+                          //      Send(handler, result + "<EOF>");
+                          //  }
                         }
                     }
                     else if (content.IndexOf("[(DELETE_HALL)]:") > -1)
@@ -335,6 +334,57 @@ namespace TCPConnection
                             }
                         }
                     }
+                    else if (content.IndexOf("[(DELETE_BOOKING)]:") > -1)
+                    {
+                        content = content.Replace("[(DELETE_BOOKING)]:", "");
+                        content = content.Replace("(", "");
+                        content = content.Replace(")", "");
+                        string result = "error";
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                int booking_id = Convert.ToInt32(content);
+                                context.Remove(context.Bookings.Single(s => s.BookingId == booking_id));
+                                context.SaveChanges();
+
+                                result = "succeed";
+                                Send(handler, result + "<EOF>");
+                            }
+                            catch (Exception ex)
+                            {
+                                Send(handler, result + "<EOF>");
+                            }
+                        }
+                    }
+                    else if (content.IndexOf("[(DELETE_USER)]:") > -1)
+                    {
+                        content = content.Replace("[(DELETE_USER)]:", "");
+                        content = content.Replace("(", "");
+                        content = content.Replace(")", "");
+                        string result = "error";
+                       
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            try
+                            {
+                                int uid = Convert.ToInt32(content);
+                                User user = context.Users.Where(s => s.UserId == uid).First();
+
+                                context.Database.ExecuteSqlRaw("call drop_user("+uid+")");
+                                context.Database.ExecuteSqlRaw("drop user " + user.Username);
+
+                                context.SaveChanges();
+
+                                result = "succeed";
+                                Send(handler, result + "<EOF>");
+                            }
+                            catch (Exception ex)
+                            {
+                                Send(handler, result + "<EOF>");
+                            }
+                        }
+                    }
                     else if (content.IndexOf("[(GET_FILTERED_DATA)]") > -1)
                     {
                         content = content.Replace("[(GET_FILTERED_DATA)]", "");
@@ -351,7 +401,11 @@ namespace TCPConnection
                                 con.Open();
                                 DbCommand cmd = con.CreateCommand();
 
-                                cmd.CommandText = @"select * from getfiltereddata('"+to_apply.from_date+"', '"+to_apply.to_date+"', "+to_apply.from_price+", "+to_apply.to_price+", "+to_apply.from_capacity+ ","+to_apply.to_capacity+", '"+to_apply.location+"')";
+                                if (to_apply.userid != -1)
+                                {
+                                    cmd.CommandText = @"select * from getuserfiltereddata('" + to_apply.from_date + "', '" + to_apply.to_date + "', " + to_apply.from_price + ", " + to_apply.to_price + ", " + to_apply.from_capacity + "," + to_apply.to_capacity + ", '" + to_apply.location + "', "+to_apply.userid+")";
+                                }
+                                else cmd.CommandText = @"select * from getfiltereddata('" + to_apply.from_date + "', '" + to_apply.to_date + "', " + to_apply.from_price + ", " + to_apply.to_price + ", " + to_apply.from_capacity + "," + to_apply.to_capacity + ", '" + to_apply.location + "')";
 
                                 DbDataReader reader = cmd.ExecuteReader();
                                 List<HallDTO> halls = new List<HallDTO>();
@@ -387,7 +441,7 @@ namespace TCPConnection
 
 
                     }
-                    else if (content == "GetFiltersInitial")
+                    else if (content == "[(GET_FILTERS_INITIAL)]")
                     {
                         string result = "error";
                         using (var context = new BookingAppContext(current.options.Options))
@@ -455,6 +509,77 @@ namespace TCPConnection
                         ///byte[] data = Encoding.ASCII.GetBytes(result);
                         ///current.clientSocket.Send(data);
                     }
+                    else if (content.IndexOf("[(GET_USER_FILTERS_INITIAL)]:") > -1)
+                    {
+                        content = content.Replace("[(GET_USER_FILTERS_INITIAL)]:", "");
+                        content = content.Replace("(", "");
+                        content = content.Replace(")", "");
+                        string uid = content;
+                        string result = "error";
+
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                           // try
+                           // {
+                                Filters initFilters = new Filters();
+
+                                DbConnection con = context.Database.GetDbConnection();
+
+                                con.Open();
+                                DbCommand cmd = con.CreateCommand();
+
+                                cmd.CommandText = "select * from getuserminmaxprice('"+uid+"')";
+
+                                DbDataReader reader = cmd.ExecuteReader();
+
+                                if (reader.HasRows)
+                                {
+                                    reader.Read();
+                                    initFilters.from_price = reader.GetInt32(0);
+                                    initFilters.to_price = reader.GetInt32(1);
+                                }
+
+                                reader.Dispose();
+                                cmd.CommandText = "select * from getuserminmaxcapacity('"+uid+"')";
+                                reader = cmd.ExecuteReader();
+
+                                if (reader.HasRows)
+                                {
+                                    reader.Read();
+                                    initFilters.from_capacity = reader.GetInt32(0);
+                                    initFilters.to_capacity = reader.GetInt32(1);
+                                }
+
+                                reader.Dispose();
+                                cmd.CommandText = "select * from getuserlocations('"+uid+"')";
+                                reader = cmd.ExecuteReader();
+
+
+                                if (reader.HasRows)
+                                {
+                                    while (reader.Read())
+                                    {
+                                        initFilters.locations.Add(reader.GetString(0));
+                                    }
+                                }
+
+                                //users.ForEach(Console.WriteLine);
+                                reader.Close();
+
+                                con.Close();
+
+                                result = XMLSerialize.Serialize<Filters>(initFilters);
+
+                                Console.WriteLine(result);
+                                Send(handler, result + "<EOF>");
+                          //  }
+                           // catch (Exception ex)
+                           // {
+                            //    Send(handler, result + "<EOF>");
+                           // }
+                        }
+
+                    }
                     else if (content == "[(GetUsers)]")
                     {
                         //string result = current.databaseConnection.GetUsers()var query
@@ -509,19 +634,19 @@ namespace TCPConnection
                         string result = "error";
                         using (var context = new BookingAppContext(current.options.Options))
                         {
-                            try
-                            {
+                            //try
+                            //{
                                 var offer = context.Offers.Where(s => s.HallId == hall_id).First();
                                 OfferDTO offerDTO = new OfferDTO((Offer)offer);
 
                                 result = XMLSerialize.Serialize<OfferDTO>(offerDTO);
                                 Send(handler, result + "<EOF>");
 
-                            }
-                            catch (Exception ex)
-                            {
-                                Send(handler, result + "<EOF>");
-                            }
+                            //}
+                            //catch (Exception ex)
+                            //{
+                            //    Send(handler, result + "<EOF>");
+                            //}
                         }
                     }
                     else if (content.IndexOf("Login:") != -1)

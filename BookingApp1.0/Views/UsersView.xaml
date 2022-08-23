@@ -46,14 +46,9 @@
                     <DataGridTemplateColumn Header="Operations" IsReadOnly="True" Width="auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Style="{StaticResource gridEditButton}">
-                                        <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
-                                    </Button>
-                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
-                                        <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
-                                    </Button>
-                                </StackPanel>
+                                <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteUser">
+                                    <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
+                                </Button>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
