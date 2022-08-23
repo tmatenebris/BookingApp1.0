@@ -168,40 +168,44 @@ namespace TCPConnection
 
                         
                     }
-                    else if (content.IndexOf("[(UPDATE)]") > -1)
+                    else if (content.IndexOf("[(UPDATE_HALL)]") > -1)
                     {
-                        content = content.Replace("[(UPDATE)]", "");
+                        content = content.Replace("[(UPDATE_HALL)]", "");
 
-                        HallDTO new_hallDTO = XMLSerialize.Deserialize<HallDTO>(content);
+                      
                         ///string result = current.databaseConnection.InsertHall(new_hall);
                         // byte[] data = Encoding.ASCII.GetBytes(result);
                         // current.clientSocket.Send(data);
                         ///
                         string result = "error";
-                        Hall new_hall = new Hall(new_hallDTO);
+                       
                         using (var context = new BookingAppContext(current.options.Options))
                         {
-                            try
-                            {
-                                
+                          //  try
+                          //  { 
+                                HallDTO new_hallDTO = XMLSerialize.Deserialize<HallDTO>(content);
+                                Hall new_hall = new Hall(new_hallDTO);
+                                var hto_update = context.Halls.Where(s => s.HallId == new_hall.HallId).First();
 
-                                var to_update = context.Halls.Where(s => s.HallId == new_hall.HallId).First();
-                                to_update.Name = new_hall.Name;
-                                to_update.Location = new_hall.Location;
-                                //to_update.Description = new_hall.Description;
-                                to_update.Image = new_hall.Image;
-                                to_update.Price = new_hall.Price;
-                                to_update.Capacity = new_hall.Capacity;
-                               
+                                hto_update.Name = new_hall.Name;
+                                hto_update.Location = new_hall.Location;
+                                hto_update.Price = new_hall.Price;
+                                hto_update.Capacity = new_hall.Capacity;
+                                hto_update.Image = new_hall.Image;
                                 context.SaveChanges();
 
+                                var ito_update = context.Imagesandescs.Where(s => s.HallId == new_hall.HallId).First();
+                                ito_update.Description = new_hallDTO.Description;
+                                ito_update.Image = Convert.ToBase64String(new_hallDTO.Image);
+
+                                context.SaveChanges();
                                 result = "succeed";
                                 Send(handler, result + "<EOF>");
-                            }
-                           catch (Exception ex)
-                           {
-                                Send(handler, result + "<EOF>");
-                           }
+                          //  }
+                           //catch (Exception ex)
+                          // {
+                          //      Send(handler, result + "<EOF>");
+                          // }
                         }
 
 
@@ -307,6 +311,27 @@ namespace TCPConnection
                           //  {
                           //      Send(handler, result + "<EOF>");
                           //  }
+                        }
+                    }
+                    else if (content.IndexOf("[(GET_ALL_BOOKINGS)]") > -1)
+                    {
+                        string result = "error";
+                        content = content.Replace("[(GET_ALL_BOOKINGS)]", "");
+                        using (var context = new BookingAppContext(current.options.Options))
+                        {
+                            //  try
+                            //  {
+                            List<BookingView> booking_list = new List<BookingView>();
+                            booking_list = context.Bookingviews.ToList();
+
+                            result = XMLSerialize.Serialize<List<BookingView>>(booking_list);
+                            Console.WriteLine(result);
+                            Send(handler, result + "<EOF>");
+                            //  }
+                            //  catch (Exception ex)
+                            //  {
+                            //      Send(handler, result + "<EOF>");
+                            //  }
                         }
                     }
                     else if (content.IndexOf("[(DELETE_HALL)]:") > -1)

@@ -50,7 +50,15 @@ namespace BookingApp1._0.Views
         {
             return await Task.Factory.StartNew(() =>
             {
-                string response = TCPClient.ServerRequestWithResponse("[(GET_MY_BOOKINGS)]");
+                string response = "error";
+                if (App.appuser.Role == "user")
+                {
+                    response = TCPClient.ServerRequestWithResponse("[(GET_MY_BOOKINGS)]");
+                }
+                else
+                {
+                    response = TCPClient.ServerRequestWithResponse("[(GET_ALL_BOOKINGS)]");
+                }
                 List<BookingView> bookings = new List<BookingView>();
                 bookings = XMLSerialize.Deserialize<List<BookingView>>(response);
                 return bookings;
@@ -59,6 +67,11 @@ namespace BookingApp1._0.Views
 
         private async void PrivateBookingsView_Load(object sender, EventArgs e)
         {
+            if (App.appuser.Role == "admin")
+            {
+                Label.Text = "List Of Bookings:";
+                UserCol.Visibility = Visibility.Visible;
+            }
             ProgressBar.IsIndeterminate = true;
             _bookings = await GetMyBookingsAsync();
             _cview = await GetPagedListAsync();

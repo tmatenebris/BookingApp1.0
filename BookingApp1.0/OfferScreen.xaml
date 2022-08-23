@@ -63,7 +63,7 @@
                     <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0 50">
                         <DockPanel  Margin="0">
                             <TextBox Text="Name:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
-                            <TextBox x:Name="HallName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" />
+                            <TextBox x:Name="HallName" Text="Dawid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0" Cursor="Arrow" />
                         </DockPanel>
                         <DockPanel  Margin="0">
                             <TextBox Text="Location:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"  Foreground="White" FontSize="14" materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"/>

@@ -67,6 +67,7 @@ namespace BookingApp1._0.Views
             
 
             BitmapImage image = Thumbnail.Source as BitmapImage;
+
             if (image == null)
             {
                 image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));

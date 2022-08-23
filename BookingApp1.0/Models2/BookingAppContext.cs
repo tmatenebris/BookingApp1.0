@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Database.Models
+namespace BookingApp1._0.Models2
 {
-        public partial class BookingAppContext : DbContext
-        {
+    public partial class BookingAppContext : DbContext
+    {
         public BookingAppContext()
         {
         }
@@ -17,7 +17,7 @@ namespace Database.Models
         }
 
         public virtual DbSet<Booking> Bookings { get; set; } = null!;
-        public virtual DbSet<BookingView> Bookingviews { get; set; } = null!;
+        public virtual DbSet<Bookingview> Bookingviews { get; set; } = null!;
         public virtual DbSet<Hall> Halls { get; set; } = null!;
         public virtual DbSet<Imagesandesc> Imagesandescs { get; set; } = null!;
         public virtual DbSet<Offer> Offers { get; set; } = null!;
@@ -68,7 +68,7 @@ namespace Database.Models
                     .HasConstraintName("bookings_user_id_fkey");
             });
 
-            modelBuilder.Entity<BookingView>(entity =>
+            modelBuilder.Entity<Bookingview>(entity =>
             {
                 entity.HasNoKey();
 
@@ -233,6 +233,3 @@ namespace Database.Models
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
-
-
-

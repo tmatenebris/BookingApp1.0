@@ -12,6 +12,8 @@ namespace Database.Models
     {
         public int? BookingId { get; set; }
         public int? UserId { get; set; }
+
+        public string? Username { get; set; }
         public int? OwnerId { get; set; }
         public string? Owner { get; set; }
 

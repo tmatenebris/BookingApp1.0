@@ -27,6 +27,7 @@ namespace BookingApp1._0
     public partial class OfferScreen : Window
     {
         private static HallDTO offerHall;
+        private static BitmapImage thumb50x50;
         public OfferScreen(HallDTO current)
         {
             InitializeComponent();
@@ -172,20 +173,25 @@ namespace BookingApp1._0
         {
             HallDTO new_hall = new HallDTO();
 
-
             new_hall.HallId = offerHall.HallId;
+            new_hall.OwnerId = App.appuser.UserId;
             new_hall.Name = HallName.Text;
             new_hall.Location = HallLocation.Text;
             new_hall.Price = int.Parse(HallPrice.Text);
             new_hall.Capacity = int.Parse(HallCapacity.Text);
             new_hall.Description = GetXaml(DocReader);
+            thumb50x50 = (BitmapImage)ByteToImage(offerHall.ThumbnailImage);
 
             BitmapImage image = OfferThumbnail.Source as BitmapImage;
-            if (image == null) image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+            if (image == null)
+            {
+                image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+                thumb50x50 = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+            }
             new_hall.Image = getJPGFromImageControl(image);
-
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(UPDATE)]" +XMLSerialize.Serialize<HallDTO>(new_hall));
-            if (response == "error") MessageBox.Show("Error Occured While Updating Offer");
+            new_hall.ThumbnailImage = getJPGFromImageControl(thumb50x50);
+            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(UPDATE_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
+            if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
             else MessageBox.Show("Succeed");
         }
 
