@@ -5,14 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BookingApp1._0.Commands;
+using BookingApp1._0.Views;
 using Database.Models;
 
 namespace BookingApp1._0.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        private BaseViewModel _selectedViewModel;
-        private static User current;
+        private BaseViewModel _selectedViewModel = new SplashScreenViewModel();
+
+        
+
         public BaseViewModel SelectedViewModel
         {
             get { return _selectedViewModel; }

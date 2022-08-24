@@ -38,7 +38,7 @@
             <DataGrid x:Name ="UsersGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" Grid.Row="1" RowStyle="{DynamicResource DataGridRowStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1}"  Style="{DynamicResource DataGridStyle1}">
                 <DataGrid.Columns>
 
-
+                    <DataGridTextColumn Header="Username" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding Username}"/>
                     <DataGridTextColumn Header="First Name" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding FirstName}"/>
                     <DataGridTextColumn Header="Last Name" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding LastName}"/>
                     <DataGridTextColumn Header="Phone Number" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding PhoneNumber}"/>
@@ -46,18 +46,22 @@
                     <DataGridTemplateColumn Header="Operations" IsReadOnly="True" Width="auto">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteUser">
-                                    <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
-                                </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Margin="5 0 0 0" Style="{StaticResource gridEditButton}" Click="EditUser">
+                                        <materialDesign:PackIcon Kind="EditOutline" Style="{StaticResource gridButtonIcon}"/>
+                                    </Button>
+                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteUser">
+                                        <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
+                                    </Button>
+                                </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            
+
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="left">
-                <Button Grid.Row="3" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Content="Undo" HorizontalAlignment="Left" Margin="10" Click="BackToBasic"/>
-                <Button  x:Name="OrderButton"  Grid.Row="3" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Content="Order By" HorizontalAlignment="Left" Margin="0" Click="OrderBy" Cursor="Hand"/>
+                <Button  x:Name="OrderButton"  Grid.Row="3" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Content="Order By" HorizontalAlignment="Left" Margin="20 , 0" Click="OrderBy" Cursor="Hand"/>
                 <ComboBox x:Name="Order_By" Width="100" Margin="20 0 20 0" />
                 <ComboBox x:Name="Direction" Width="100" Margin="20 0 20 0" />
 
@@ -68,7 +72,7 @@
 
 
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource pagingButton}" x:Name="PrevPage">
+                    <Button Style="{StaticResource pagingButton}" x:Name="PrevPage" Click="OnPreviousClicked">
                         <fa:IconImage Icon="AngleLeft" Style="{StaticResource pagingButtonIcon}"/>
 
                     </Button>
@@ -79,7 +83,7 @@
                     <TextBlock x:Name="MaxNumber" Text="1" Width="20"/>
 
                     <Rectangle Width="1" Fill="#DEE4EC" Margin="3 7"/>
-                    <Button Style="{StaticResource pagingButton}" x:Name="NextPage">
+                    <Button Style="{StaticResource pagingButton}" x:Name="NextPage" Click="OnNextClicked">
                         <fa:IconImage Icon="AngleRight" Style="{StaticResource pagingButtonIcon}"/>
                     </Button>
 

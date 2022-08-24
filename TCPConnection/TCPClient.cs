@@ -36,17 +36,6 @@ namespace TCPConnection
             }
         }
 
-        public static void GetUserIdFromServer()
-        {
-            string uid = ServerRequestWithResponse("GetIdFromServer");
-            uid.Replace("<EOF>", "");
-            UserId = int.Parse(uid);
-        }
-
-        public static int GetUserId()
-        {
-            return UserId;
-        }
         public static string ServerRequestWithResponse(string s)
         {
 
@@ -55,7 +44,7 @@ namespace TCPConnection
 
         }
 
-        public static void SendAndRecieve(string s)
+        private static void SendAndRecieve(string s)
         {
             Send(s + "<EOF>");
             sendDone.WaitOne();

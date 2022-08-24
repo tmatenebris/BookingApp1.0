@@ -47,6 +47,10 @@ namespace BookingApp1._0.Commands
             {
                 viewModel.SelectedViewModel = new UsersViewModel();
             }
+            else if(parameter.ToString() =="User")
+            {
+                viewModel.SelectedViewModel = new UserScreenViewModel();
+            }
         }
     }
 }

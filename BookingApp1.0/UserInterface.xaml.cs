@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using BookingApp1._0.ViewModels;
+using BookingApp1._0.Views;
 using Database.Models;
 
 namespace BookingApp1._0
@@ -26,13 +27,18 @@ namespace BookingApp1._0
         {
             InitializeComponent();
             DataContext = new MainViewModel();
-            UserBox.Text = user.FirstName + " " + user.LastName;
-            UserInitials.Text = user.FirstName.Substring(0, 1).ToUpper() + user.LastName.Substring(0, 1).ToUpper(); 
             if(user.Role == "user")
             {
                 
                 UsersButton.Visibility = Visibility.Collapsed;
+                Sep1.Visibility = Visibility.Collapsed;
             }
+            else
+            {
+                UserButton.Visibility = Visibility.Collapsed;
+                Sep2.Visibility = Visibility.Collapsed;
+            }
+
         }
 
         private void CloseApp(object sender, RoutedEventArgs e)

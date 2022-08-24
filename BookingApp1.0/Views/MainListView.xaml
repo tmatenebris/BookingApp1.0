@@ -94,7 +94,7 @@
                     </Button>
                     
                     
-                    <TextBlock x:Name="Number" Text="1" Width="20"/>
+                    <TextBlock x:Name="Number" Text="1" Width="20" Cursor="Hand"/>
                     <TextBlock Text="/" Width="20"/>
                     <TextBlock x:Name="MaxNumber" Text="1" Width="20"/>
 

@@ -25,74 +25,64 @@ namespace BookingApp1._0.Views
     /// </summary>
     public partial class UsersView : UserControl
     {
-        private static IPagedList<User> _cview;
-        private static List<User> _users;
-        private static List<User> _sorted;
-        private string current_view = "normal";
-        private int pageNumber = 1;
+        private IPagedList<User> _cview;
+        public int pageNumber = 1;
         private int numOfPages = 0;
-
-
-
+        private List<User> _users;
         public UsersView()
         {
             InitializeComponent();
 
             Loaded += UsersView_Load;
+            SearchBy.Items.Add("Username");
+            SearchBy.Items.Add("First Name");
+            SearchBy.Items.Add("Last Name");
+            SearchBy.Items.Add("EMail");
 
+            Order_By.Items.Add("First Name");
+            Order_By.Items.Add("Last Name");
+            Order_By.Items.Add("First+Last Name");
+            Order_By.Items.Add("EMail");
+            Direction.Items.Add("ASCENDING");
+            Direction.Items.Add("DESCENDING");
 
         }
 
-        private async Task<IPagedList<User>> GetPagedListAsync(int pageNumber = 1, int pageSize = 7)
+        private async Task<IPagedList<User>> GetPagedListAsync(int pageNumber = 1, int pageSize = 11)
         {
             return await Task.Factory.StartNew(() =>
             {
-                if (current_view == "normal")
-                {
-                    numOfPages = (_users.Count() + pageSize - 1) / pageSize;
-                    return _users.ToPagedList(pageNumber, pageSize);
-                }
-                else return _sorted.ToPagedList(pageNumber, pageSize);
-
-
+                numOfPages = (_users.Count() + pageSize - 1) / pageSize;
+                return _users.ToPagedList(pageNumber, pageSize);
             });
 
+
         }
-
-
 
         private async Task<List<User>> GetUsersAsync()
         {
             return await Task.Factory.StartNew(() =>
             {
-                string response = TCPClient.ServerRequestWithResponse("[(GetUsers)]");
-                List<User> users = new List<User>();
-                users = XMLSerialize.Deserialize<List<User>>(response);
-                return users;
+                string response = "error";
+                response = TCPClient.ServerRequestWithResponse("[(GET_USERS)]");
+                List<User> bookings = new List<User>();
+                bookings = XMLSerialize.Deserialize<List<User>>(response);
+                return bookings;
             });
         }
 
         private async void UsersView_Load(object sender, EventArgs e)
         {
+
             ProgressBar.IsIndeterminate = true;
             _users = await GetUsersAsync();
             _cview = await GetPagedListAsync();
-            _sorted = _users;
+            Number.Text = pageNumber.ToString();
             MaxNumber.Text = numOfPages.ToString();
-            ProgressBar.IsIndeterminate = false;
-            SearchBy.Items.Add("First Name");
-            SearchBy.Items.Add("Last Name");
-            SearchBy.Items.Add("EMail");
-            Order_By.Items.Add("Fist Name");
-            Order_By.Items.Add("Last Name");
-            Order_By.Items.Add("EMail");
-            Direction.Items.Add("ASCENDING");
-            Direction.Items.Add("DESCENDIG");
-
             PrevPage.IsEnabled = _cview.HasPreviousPage;
             NextPage.IsEnabled = _cview.HasNextPage;
             UsersGrid.DataContext = _cview.ToList();
-
+            ProgressBar.IsIndeterminate = false;
 
         }
         private async void OnPreviousClicked(object sender, RoutedEventArgs e)
@@ -120,67 +110,95 @@ namespace BookingApp1._0.Views
         }
 
 
-
-
-
-        private async Task<IPagedList<User>> GetPagedListAsyncFirstNameFiltered(string name, int pageNumber = 1, int pageSize = 7)
+        private async Task<string> DeleteRequest(int user_id)
         {
             return await Task.Factory.StartNew(() =>
             {
-                if (current_view == "normal")
-                {
-                    numOfPages = (_users.Where(s => s.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _users.Where(s => s.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
-                else
-                {
-                    numOfPages = (_sorted.Where(s => s.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _sorted.Where(s => s.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
+                string response = TCPClient.ServerRequestWithResponse("[(DELETE_USER)]:(" + user_id.ToString() + ")");
+                return response;
+            });
+        }
+
+        private async Task<string> UpdateRequest(User to_up)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                string response = TCPClient.ServerRequestWithResponse("[(UPDATE_USER)]"+XMLSerialize.Serialize<User>(to_up));
+                return response;
+            });
+        }
+
+        private async void UpdateUser(User to_up)
+        {
+            string response = await UpdateRequest(to_up);
+            if (response == "error") MessageBox.Show("Unable to Update User");
+        }
+
+        private async void DeleteUser(object sender, RoutedEventArgs e)
+        {
+            var clicked = UsersGrid.SelectedItem as User;
+
+
+            string response = await DeleteRequest(clicked.UserId);
+
+            if (response == "error") MessageBox.Show("Unable to delete User");
+            else
+            {
+                if (_users != null) _users.Remove(clicked);
+                _cview = await GetPagedListAsync(pageNumber);
+                MaxNumber.Text = numOfPages.ToString();
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                UsersGrid.DataContext = _cview.ToList();
+                Number.Text = pageNumber.ToString();
+            }
+
+        }
+
+
+        private async Task<IPagedList<User>> GetPagedListAsyncFirstNameFiltered(string firstname, int pageNumber = 1, int pageSize = 11)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                numOfPages = (_users.Where(s => s.FirstName.Contains(firstname, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
+                return _users.Where(s => s.FirstName.Contains(firstname, StringComparison.OrdinalIgnoreCase)).ToList().ToPagedList(pageNumber, pageSize);
             });
 
 
         }
 
-
-
-
-        private async Task<IPagedList<User>>GetPagedListAsyncLastNameFiltered(string last_name, int pageNumber = 1, int pageSize = 7)
+        private async Task<IPagedList<User>> GetPagedListAsyncLastNameFiltered(string lastname, int pageNumber = 1, int pageSize = 11)
         {
             return await Task.Factory.StartNew(() =>
             {
-                if (current_view == "normal")
-                {
-                    numOfPages = (_users.Where(s => s.LastName.Contains(last_name, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _users.Where(s => s.LastName.Contains(last_name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
-                else
-                {
-                    numOfPages = (_sorted.Where(s => s.LastName.Contains(last_name, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _sorted.Where(s => s.LastName.Contains(last_name, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
+                numOfPages = (_users.Where(s => s.LastName.Contains(lastname, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
+                return _users.Where(s => s.LastName.Contains(lastname, StringComparison.OrdinalIgnoreCase)).ToList().ToPagedList(pageNumber, pageSize);
             });
+
 
         }
 
-        private async Task<IPagedList<User>> GetPagedListAsyncEMailFiltered(string email, int pageNumber = 1, int pageSize = 7)
+        private async Task<IPagedList<User>> GetPagedListAsyncUsernameFiltered(string username, int pageNumber = 1, int pageSize = 11)
         {
             return await Task.Factory.StartNew(() =>
             {
-                if (current_view == "normal")
-                {
-                    numOfPages = (_users.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _users.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
-                else
-                {
-                    numOfPages = (_sorted.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
-                    return _sorted.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToPagedList(pageNumber, pageSize);
-                }
+                numOfPages = (_users.Where(s => s.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
+                return _users.Where(s => s.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList().ToPagedList(pageNumber, pageSize);
             });
+
 
         }
 
+        private async Task<IPagedList<User>> GetPagedListAsyncEMailFiltered(string email, int pageNumber = 1, int pageSize = 11)
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                numOfPages = (_users.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList().Count() + pageSize - 1) / pageSize;
+                return _users.Where(s => s.Email.Contains(email, StringComparison.OrdinalIgnoreCase)).ToList().ToPagedList(pageNumber, pageSize);
+            });
+
+
+        }
 
         private async void FilterBy(object sender, TextChangedEventArgs e)
         {
@@ -188,7 +206,17 @@ namespace BookingApp1._0.Views
             {
                 OrderButton.IsEnabled = false;
                 SearchBy.IsEnabled = false;
-                if (SearchBy.Text == "First Name")
+                if (SearchBy.Text == "Username")
+                {
+                    _cview = await GetPagedListAsyncUsernameFiltered(txtFilter.Text, 1);
+                    MaxNumber.Text = numOfPages.ToString();
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    UsersGrid.DataContext = _cview.ToList();
+                    pageNumber = 1;
+                    Number.Text = pageNumber.ToString();
+                }
+                else if (SearchBy.Text == "First Name")
                 {
                     _cview = await GetPagedListAsyncFirstNameFiltered(txtFilter.Text, 1);
                     MaxNumber.Text = numOfPages.ToString();
@@ -201,6 +229,16 @@ namespace BookingApp1._0.Views
                 else if (SearchBy.Text == "Last Name")
                 {
                     _cview = await GetPagedListAsyncLastNameFiltered(txtFilter.Text, 1);
+                    MaxNumber.Text = numOfPages.ToString();
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    UsersGrid.DataContext = _cview.ToList();
+                    pageNumber = 1;
+                    Number.Text = pageNumber.ToString();
+                }
+                else if (SearchBy.Text == "EMail")
+                {
+                    _cview = await GetPagedListAsyncEMailFiltered(txtFilter.Text, 1);
                     MaxNumber.Text = numOfPages.ToString();
                     PrevPage.IsEnabled = _cview.HasPreviousPage;
                     NextPage.IsEnabled = _cview.HasNextPage;
@@ -225,60 +263,38 @@ namespace BookingApp1._0.Views
             }
         }
 
-        private async void BackToBasic(object sender, RoutedEventArgs e)
-        {
-            current_view = "normal";
-            _cview = await GetPagedListAsync(1);
-            MaxNumber.Text = numOfPages.ToString();
-            PrevPage.IsEnabled = _cview.HasPreviousPage;
-            NextPage.IsEnabled = _cview.HasNextPage;
-            UsersGrid.DataContext = _cview.ToList();
-            _sorted = _cview.ToList();
-            pageNumber = 1;
-            Number.Text = pageNumber.ToString();
-        }
-
         private async void OrderBy(object sender, RoutedEventArgs e)
         {
-            current_view = "sorted";
-            if (current_view == "normal")
+            if (Order_By.Text == "Username")
             {
-
-                if (Order_By.Text == "Last Name")
+                if (Direction.Text == "ASCENDING")
                 {
-
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _users.OrderBy(s => s.LastName).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _users.OrderByDescending(s => s.LastName).ToList();
-                    }
+                    _users = _users.OrderBy(s => s.Username).ToList();
                 }
-                else if (Order_By.Text == "First Name")
+                else
                 {
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _users.OrderBy(s => s.FirstName).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _users.OrderByDescending(s => s.FirstName).ToList();
-                    }
-                }
-                else if (Order_By.Text == "EMail")
-                {
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _users.OrderBy(s => s.Email).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _users.OrderByDescending(s => s.Email).ToList();
-                    }
+                    _users = _users.OrderByDescending(s => s.Username).ToList();
                 }
 
+                _cview = await GetPagedListAsync(1);
+                MaxNumber.Text = numOfPages.ToString();
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                UsersGrid.DataContext = _cview.ToList();
+                pageNumber = 1;
+                Number.Text = pageNumber.ToString();
+
+            }
+            else if (Order_By.Text == "First Name")
+            {
+                if (Direction.Text == "ASCENDING")
+                {
+                    _users = _users.OrderBy(s => s.FirstName).ToList();
+                }
+                else
+                {
+                    _users = _users.OrderByDescending(s => s.FirstName).ToList();
+                }
 
                 _cview = await GetPagedListAsync(1);
                 MaxNumber.Text = numOfPages.ToString();
@@ -288,43 +304,16 @@ namespace BookingApp1._0.Views
                 pageNumber = 1;
                 Number.Text = pageNumber.ToString();
             }
-            else
+            else if (Order_By.Text == "Last Name")
             {
-
-                if (Order_By.Text == "Last Name")
+                if (Direction.Text == "ASCENDING")
                 {
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _sorted.OrderBy(s => s.LastName).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _sorted.OrderByDescending(s => s.LastName).ToList();
-                    }
+                    _users = _users.OrderBy(s => s.LastName).ToList();
                 }
-                else if (Order_By.Text == "First Name")
+                else
                 {
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _sorted.OrderBy(s => s.FirstName).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _sorted.OrderByDescending(s => s.FirstName).ToList();
-                    }
+                    _users = _users.OrderByDescending(s => s.LastName).ToList();
                 }
-                else if (Order_By.Text == "EMail")
-                {
-                    if (Direction.Text == "ASCENDING")
-                    {
-                        _sorted = _sorted.OrderBy(s => s.Email).ToList();
-                    }
-                    else
-                    {
-                        _sorted = _sorted.OrderByDescending(s => s.Email).ToList();
-                    }
-                }
-
 
                 _cview = await GetPagedListAsync(1);
                 MaxNumber.Text = numOfPages.ToString();
@@ -334,40 +323,78 @@ namespace BookingApp1._0.Views
                 pageNumber = 1;
                 Number.Text = pageNumber.ToString();
             }
-
-        }
-
-
-        private async Task<string> DeleteRequest(int user_id)
-        {
-            return await Task.Factory.StartNew(() =>
+            else if (Order_By.Text == "First+Last Name")
             {
-                string response = TCPClient.ServerRequestWithResponse("[(DELETE_USER)]:(" + user_id.ToString() + ")");
-                return response;
-            });
+                if (Direction.Text == "ASCENDING")
+                {
+                    _users = _users.OrderBy(s => s.FirstName).ThenBy(s => s.LastName).ToList();
+                }
+                else
+                {
+                    _users = _users.OrderByDescending(s => s.FirstName).ThenByDescending(s => s.LastName).ToList();
+                }
+
+                _cview = await GetPagedListAsync(1);
+                MaxNumber.Text = numOfPages.ToString();
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                UsersGrid.DataContext = _cview.ToList();
+                pageNumber = 1;
+                Number.Text = pageNumber.ToString();
+            }
+            else if (Order_By.Text == "EMail")
+            {
+                if (Direction.Text == "ASCENDING")
+                {
+                    _users = _users.OrderBy(s => s.Email).ToList();
+                }
+                else
+                {
+                    _users = _users.OrderByDescending(s => s.Email).ToList();
+                }
+
+                _cview = await GetPagedListAsync(1);
+                MaxNumber.Text = numOfPages.ToString();
+                PrevPage.IsEnabled = _cview.HasPreviousPage;
+                NextPage.IsEnabled = _cview.HasNextPage;
+                UsersGrid.DataContext = _cview.ToList();
+                pageNumber = 1;
+                Number.Text = pageNumber.ToString();
+            }
         }
 
-
-        private async void DeleteUser(object sender, RoutedEventArgs e)
+        private async void EditUser(object sender, RoutedEventArgs e)
         {
             var clicked = UsersGrid.SelectedItem as User;
 
+            UserScreen win = new UserScreen(clicked);
 
-            string response = await DeleteRequest(clicked.UserId);
-
-            if (response == "error") MessageBox.Show("Unable to delete Hall");
-            else
+            if(win.ShowDialog() == false)
             {
-                if (_users != null) _users.Remove(clicked);
-                if (_sorted != null) _sorted.Remove(clicked);
-                _cview = await GetPagedListAsync(pageNumber);
-                MaxNumber.Text = numOfPages.ToString();
-                PrevPage.IsEnabled = _cview.HasPreviousPage;
-                NextPage.IsEnabled = _cview.HasNextPage;
-                UsersGrid.DataContext = _cview.ToList();
-                Number.Text = pageNumber.ToString();
-            }
+                if(win.closing_mode == 1)
+                {
 
+                    UpdateUser(win.user_to_modify);
+                    if (_users != null)
+                    {
+                        _users.Remove(clicked);
+                        _users.Add(win.user_to_modify);
+                    }
+
+                    _cview = await GetPagedListAsync(pageNumber);
+                    MaxNumber.Text = numOfPages.ToString();
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    UsersGrid.DataContext = _cview.ToList();
+                    Number.Text = pageNumber.ToString();
+
+                }
+                if (win.closing_mode == 2)
+                {
+                    DeleteUser(sender, e);
+                }
+              
+            }
         }
     }
 }

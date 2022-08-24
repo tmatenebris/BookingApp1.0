@@ -27,12 +27,12 @@
         <Grid Width="280" Height="500" VerticalAlignment="Center" Margin="0,100">
             <TextBlock Text="Register your account!" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20" Foreground="Gray" FontSize="18"/>
             <StackPanel VerticalAlignment="Center" Margin="10">
-                <TextBox Margin="0,10" x:Name ="Username" materialDesign:HintAssist.Hint="Username" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                <TextBox Margin="0,10" x:Name ="FirstName" materialDesign:HintAssist.Hint="First Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                <TextBox Margin="0,10" x:Name ="LastName" materialDesign:HintAssist.Hint="Last Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                <TextBox Margin="0,10" x:Name ="EMail" materialDesign:HintAssist.Hint="E-Mail" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                <TextBox Margin="0,10" x:Name ="PhoneNumber" materialDesign:HintAssist.Hint="Phone Number" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                <PasswordBox Margin="0,10" x:Name="Password" materialDesign:HintAssist.Hint="Password" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" Cursor="Arrow"/>
+                <TextBox Margin="0,10" x:Name ="Username" materialDesign:HintAssist.Hint="Username" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                <TextBox Margin="0,10" x:Name ="FirstName" materialDesign:HintAssist.Hint="First Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                <TextBox Margin="0,10" x:Name ="LastName" materialDesign:HintAssist.Hint="Last Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                <TextBox Margin="0,10" x:Name ="EMail" materialDesign:HintAssist.Hint="E-Mail" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                <TextBox Margin="0,10" x:Name ="PhoneNumber" materialDesign:HintAssist.Hint="Phone Number" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="9" PreviewTextInput="PhoneNumberValid" />
+                <PasswordBox Margin="0,10" x:Name="Password" materialDesign:HintAssist.Hint="Password" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" Cursor="Arrow" MaxLength="20"/>
             </StackPanel>
         </Grid>
         <Grid VerticalAlignment="Top" Margin="35,580,35,0" Height="35">

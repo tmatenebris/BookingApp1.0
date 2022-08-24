@@ -34,10 +34,10 @@
                 </StackPanel>
 
                 <StackPanel VerticalAlignment="Top" Grid.Column="1" Margin="20">
-                    <TextBox x:Name="NameSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                    <TextBox x:Name="LocationSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Location" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                    <TextBox x:Name="PriceSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Price" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14"/>
-                    <TextBox x:Name ="CapacitySet" Margin="0,10" materialDesign:HintAssist.Hint="Set Capacity" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" />
+                    <TextBox x:Name="NameSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                    <TextBox x:Name="LocationSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Location" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="20"/>
+                    <TextBox x:Name="PriceSet" Margin="0,10" materialDesign:HintAssist.Hint="Set Price" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="8" PreviewTextInput="NumberValid"/>
+                    <TextBox x:Name ="CapacitySet" Margin="0,10" materialDesign:HintAssist.Hint="Set Capacity" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontFamily="Champagne &amp; Limousines" FontSize="14" MaxLength="8" PreviewTextInput="NumberValid"/>
                     <Button Content="Save Offer" Width="200" Height="30" Margin="10" Cursor="Hand" Click="UploadOffer" />
                 </StackPanel>
                 <TextBlock Grid.Column="1" Text="Encourage Users To book!" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" Foreground="Gray" FontSize="18"/>
@@ -118,8 +118,7 @@
 
                     </ToolBar>
 
-                    <!-- By default pressing tab moves focus to the next control. Setting AcceptsTab to true allows the 
-           RichTextBox to accept tab characters. -->
+
                     <RichTextBox x:Name="DescRTB" AcceptsTab="True"></RichTextBox>
                 </DockPanel>
             </Grid>

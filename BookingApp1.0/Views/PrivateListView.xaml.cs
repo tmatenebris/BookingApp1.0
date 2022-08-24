@@ -36,6 +36,7 @@ namespace BookingApp1._0.Views
 
 
 
+
         public PrivateListView()
         {
             InitializeComponent();
@@ -72,7 +73,7 @@ namespace BookingApp1._0.Views
         {
             return await Task.Factory.StartNew(() =>
             {
-                string response = TCPClient.ServerRequestWithResponse("GetMyHalls");
+                string response = TCPClient.ServerRequestWithResponse("[(GET_MY_HALLS)]");
                 List<HallDTO> halls = new List<HallDTO>();
                 halls = XMLSerialize.Deserialize<List<HallDTO>>(response);
                 return halls;
@@ -177,12 +178,52 @@ namespace BookingApp1._0.Views
             }
         }
 
-        private void ShowOffer(object sender, MouseButtonEventArgs e)
+        private async void ShowOffer(object sender, MouseButtonEventArgs e)
         {
             var clicked = hallDataGrid.SelectedItem as HallDTO;
             OfferScreen win = new OfferScreen(clicked);
-            MessageBox.Show(clicked.HallId.ToString());
-            win.ShowDialog();
+     
+            if (win.ShowDialog() == false)
+            {
+                if (win.closing_mode == 1)
+                {
+                    if (_halls != null)
+                    {
+                        try
+                        {
+                            _halls.Remove(_halls.Where(s => s.HallId == clicked.HallId).First());
+                            _halls.Add(win.offerHall);
+                        }
+                        catch { }
+                    }
+
+                    if (_filtered != null)
+                    {
+                        try
+                        {
+                            _filtered.Remove(_filtered.Where(s => s.HallId == clicked.HallId).First());
+                            _filtered.Add(win.offerHall);
+                        }
+                        catch { }
+                    }
+
+                    if (_sorted != null)
+                    {
+                        try
+                        {
+                            _sorted.Remove(_sorted.Where(s => s.HallId == clicked.HallId).First());
+                            _sorted.Add(win.offerHall);
+                        }
+                        catch { }
+                    }
+                    _cview = await GetPagedListAsync(pageNumber);
+                    MaxNumber.Text = numOfPages.ToString();
+                    PrevPage.IsEnabled = _cview.HasPreviousPage;
+                    NextPage.IsEnabled = _cview.HasNextPage;
+                    hallDataGrid.DataContext = _cview.ToList();
+                    Number.Text = pageNumber.ToString();
+                }
+            }
         }
 
 
@@ -287,9 +328,11 @@ namespace BookingApp1._0.Views
             PrevPage.IsEnabled = _cview.HasPreviousPage;
             NextPage.IsEnabled = _cview.HasNextPage;
             hallDataGrid.DataContext = _cview.ToList();
-            _sorted = _cview.ToList();
+            _sorted = _halls;
             pageNumber = 1;
             Number.Text = pageNumber.ToString();
+            Order_By.SelectedIndex = -1;
+            Direction.SelectedIndex = -1;
         }
 
         private async void OrderBy(object sender, RoutedEventArgs e)
@@ -488,15 +531,40 @@ namespace BookingApp1._0.Views
             if (response == "error") MessageBox.Show("Unable to delete Hall");
             else
             {
-                if (_halls != null) _halls.Remove(clicked);
-                if (_filtered != null) _filtered.Remove(clicked);
-                if (_sorted != null) _sorted.Remove(clicked);
+                if (_halls != null)
+                {
+                    try
+                    {
+                        _halls.Remove(_halls.Where(s => s.HallId == clicked.HallId).First());
+                    }
+                    catch { }
+                }
+
+                if (_filtered != null)
+                {
+                    try
+                    {
+                        _filtered.Remove(_filtered.Where(s => s.HallId == clicked.HallId).First());
+                    }
+                    catch { }
+                }
+
+                if (_sorted != null)
+                {
+                    try
+                    {
+                        _sorted.Remove(_sorted.Where(s => s.HallId == clicked.HallId).First());
+                    }
+                    catch { }
+                }
+
                 _cview = await GetPagedListAsync(pageNumber);
                 MaxNumber.Text = numOfPages.ToString();
                 PrevPage.IsEnabled = _cview.HasPreviousPage;
                 NextPage.IsEnabled = _cview.HasNextPage;
                 hallDataGrid.DataContext = _cview.ToList();
                 Number.Text = pageNumber.ToString();
+                txtFilter.Text = "";
             }
 
         }

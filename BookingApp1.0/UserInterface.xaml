@@ -26,6 +26,13 @@
         <DataTemplate DataType="{x:Type viewmodels:UsersViewModel}">
             <views:UsersView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:SplashScreenViewModel}">
+            <views:SplashScreenView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:UserScreenViewModel}">
+            <views:UserView/>
+        </DataTemplate>
+
 
         <System:DateTime x:Key="DateTimeDataSource" d:IsDataSource="True" />
     </Window.Resources>
@@ -45,28 +52,19 @@
                     <GradientStop Color="#FF33288B" Offset="0.5"/>
                 </LinearGradientBrush>
             </Border.Background>
+            
             <StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 35 0 0" VerticalAlignment="Top">
-                    <Border CornerRadius="10" Width="40" Height="40">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
-                                <GradientStop Color="#909FB6"/>
-                                <GradientStop Color="#5E6C85" Offset="1"/>
-                                <GradientStop Color="#6F7D95" Offset="0.5"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <TextBlock x:Name="UserInitials" Text="DS" Foreground="White" FontSize="22" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center" Margin="3 0 0 2"/>
-                    </Border>
 
-                    <!--User-->
-                    <StackPanel Margin="10 0 0 0" VerticalAlignment="Center">
-                        <TextBlock x:Name="UserBox" Text="Dawid Stopczynski" FontSize="14" Margin="0 0 0 5" Foreground="White"/>
-                        <TextBlock FontSize="11" Margin="0 0 0 5" Foreground="White"  DataContext="{Binding Source={StaticResource DateTimeDataSource}}" Text="{Binding Now, Mode=OneWay, StringFormat=\{0:d\}}"/>
-                        <TextBlock FontSize="11" Margin="0 0 0 5" Foreground="White"  DataContext="{Binding Source={StaticResource DateTimeDataSource}}" Text="{Binding Now, Mode=OneWay, StringFormat='{}{0:hh:mm}'}"/>
-                    </StackPanel>
-                </StackPanel>
+                <Grid>
+                    <Ellipse Width="50" Height="50" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="30" Fill="White">
 
-                <Separator Height="0.8" Margin="20 30" Background="White"/>
+                    </Ellipse>
+                    <Image Source="/Assets/key-hole.png" Width="30" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="40"/>
+                </Grid>
+                   
+               
+
+                <Separator Height="0.8" Margin="20 0" Background="White"/>
                 <Button Style="{StaticResource menuButton}" Command="{Binding UpdateViewCommand}" CommandParameter="MyBookings">
                     <StackPanel Orientation="Horizontal">
                         <fa:IconImage Icon="Home" Style="{StaticResource menuButtonIcon}"/>
@@ -98,14 +96,21 @@
                     </StackPanel>
                 </Button>
 
-                <Separator Height="0.8" Margin="20 0" Background="White"/>
+                <Separator Height="0.8" Margin="20 0" Background="White" x:Name="Sep1"/>
                 <Button x:Name="UsersButton" Style="{StaticResource menuButton}" Command="{Binding UpdateViewCommand}" CommandParameter="Users" >
                     <StackPanel Orientation="Horizontal">
                         <fa:IconImage Icon="User" Style="{StaticResource menuButtonIcon}"/>
                         <TextBlock Text="Users" Style="{StaticResource menuButtonText}"/>
                     </StackPanel>
                 </Button>
-
+                
+                <Separator Height="0.8" Margin="20 0" Background="White" x:Name="Sep2"/>
+                <Button x:Name="UserButton" Style="{StaticResource menuButton}" Command="{Binding UpdateViewCommand}" CommandParameter="User" >
+                    <StackPanel Orientation="Horizontal">
+                        <fa:IconImage Icon="User" Style="{StaticResource menuButtonIcon}"/>
+                        <TextBlock Text="User" Style="{StaticResource menuButtonText}"/>
+                    </StackPanel>
+                </Button>
                 <Separator Height="0.8" Margin="20 0" Background="White"/>
                 <Button Style="{StaticResource menuButton}" Click="CloseApp">
                     <StackPanel Orientation="Horizontal">
@@ -118,13 +123,21 @@
 
         </Border>
 
+
+
+  
+        
         <Border Grid.Column="1" CornerRadius="0 10 10 0">
             <Border.Background>
                 <SolidColorBrush Color="White"></SolidColorBrush>
             </Border.Background>
-
+           
+             
             <ContentControl Content="{Binding SelectedViewModel}"/>
+          
 
         </Border>
+
+
     </Grid>
 </Window>

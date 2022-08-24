@@ -35,9 +35,8 @@ namespace BookingApp1._0
 
         private void Login(object sender, RoutedEventArgs e)
         {
-            string response = TCPClient.ServerRequestWithResponse("Login: <" + LoginBox.Text + "> " + "Password: <" + PasswordBox.Password + ">");
-            TCPClient.GetUserIdFromServer();
-            if (response == "unknown")
+            string response = TCPClient.ServerRequestWithResponse("[(LOGIN)]: <" + LoginBox.Text + "> " + "[(Password)]: <" + PasswordBox.Password + ">");
+            if (response == "error")
             {
                 MessageBox.Show("Invalid login or password");
             }
@@ -50,7 +49,7 @@ namespace BookingApp1._0
                 App.appuser = user;
                 //TCPClient.SetUserId(user.UserId);
                 win.Show();
-                App.Current.MainWindow.Close();
+                Close();
             } 
         }
 

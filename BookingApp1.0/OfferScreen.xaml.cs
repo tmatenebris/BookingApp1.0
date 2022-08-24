@@ -18,6 +18,9 @@ using System.Xml;
 using System.Windows.Markup;
 using System.Drawing;
 using System.Drawing.Imaging;
+using BookingApp1._0.Helpers;
+using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace BookingApp1._0
 {
@@ -26,51 +29,60 @@ namespace BookingApp1._0
     /// </summary>
     public partial class OfferScreen : Window
     {
-        private static HallDTO offerHall;
+        public  HallDTO offerHall;
+        public int closing_mode = 0;
         private static BitmapImage thumb50x50;
         public OfferScreen(HallDTO current)
         {
             InitializeComponent();
             offerHall = current;
-            if((offerHall.OwnerId == App.appuser.UserId) || (App.appuser.Role == "admin"))
+
+            Loaded += OfferScreen_Load;
+        }
+
+        private async void OfferScreen_Load(object sender, EventArgs e)
+        {
+            try
             {
-                BookButton.Visibility = Visibility.Hidden;
-                UpdateButton.Visibility = Visibility.Visible;
-                mainToolBar.Visibility = Visibility.Visible;
-                DocReader.IsReadOnly = false;
-                FromDate.Visibility = Visibility.Hidden;
-                ToDate.Visibility = Visibility.Hidden;
-                HallName.IsReadOnly = false;
-                HallPrice.IsReadOnly = false;
-                HallLocation.IsReadOnly = false;
-                HallCapacity.IsReadOnly = false;
-                UploadButton.Visibility = Visibility.Visible;
-                Block.Visibility = Visibility.Hidden;
+                if ((offerHall.OwnerId == App.appuser.UserId) || (App.appuser.Role == "admin"))
+                {
+                    BookButton.Visibility = Visibility.Hidden;
+                    UpdateButton.Visibility = Visibility.Visible;
+                    mainToolBar.Visibility = Visibility.Visible;
+                    DocReader.IsReadOnly = false;
+                    FromDate.Visibility = Visibility.Hidden;
+                    ToDate.Visibility = Visibility.Hidden;
+                    HallName.IsReadOnly = false;
+                    HallPrice.IsReadOnly = false;
+                    HallLocation.IsReadOnly = false;
+                    HallCapacity.IsReadOnly = false;
+                    UploadButton.Visibility = Visibility.Visible;
+                    Block.Visibility = Visibility.Hidden;
+                }
+
+                string result = TCPConnection.TCPClient.ServerRequestWithResponse("[(GET_OFFER)]: (" + offerHall.HallId.ToString() + ")");
+
+                if (result != "error")
+                {
+                    OfferDTO curr_offer = XMLSerialize.Deserialize<OfferDTO>(result);
+
+                    HallName.Text = curr_offer.Name;
+                    HallLocation.Text = curr_offer.Location;
+                    HallPrice.Text = curr_offer.Price.ToString();
+                    HallCapacity.Text = curr_offer.Capacity.ToString();
+                    OwnerEmail.Text = curr_offer.Email;
+                    OwnerName.Text = curr_offer.FirstName;
+                    OwnerSurname.Text = curr_offer.LastName;
+                    OwnerPhone.Text = curr_offer.PhoneNumber;
+                    OfferThumbnail.Source = ImageProcessing.ByteToImage(curr_offer.Image);
+
+                    DocReader.Document = DocumentsProcessing.SetRTF(curr_offer.Description);
+
+
+                }
+                else MessageBox.Show("Unable to load offer");
             }
-           
-            string result = TCPConnection.TCPClient.ServerRequestWithResponse("GetOffer: <" + offerHall.HallId.ToString() + ">");
-
-            if (result != "error")
-            {
-                OfferDTO curr_offer = XMLSerialize.Deserialize<OfferDTO>(result);
-
-                HallName.Text = curr_offer.Name;
-                HallLocation.Text = curr_offer.Location;
-                HallPrice.Text = curr_offer.Price.ToString();
-                HallCapacity.Text = curr_offer.Capacity.ToString();
-                OwnerEmail.Text = curr_offer.Email;
-                OwnerName.Text = curr_offer.FirstName;
-                OwnerSurname.Text = curr_offer.LastName;
-                OwnerPhone.Text = curr_offer.PhoneNumber;
-                OfferThumbnail.Source = ByteToImage(curr_offer.Image);
-
-                DocReader.Document = SetRTF(curr_offer.Description);
-                
-                
-            }
-            else MessageBox.Show("Unable to load offer");
-
-            
+            catch { MessageBox.Show("Error"); }
         }
 
         private void Book(object sender, RoutedEventArgs e)
@@ -91,84 +103,14 @@ namespace BookingApp1._0
             else MessageBox.Show("Succeed");
         }
 
-        private static FlowDocument SetRTF(string xamlString)
-        {
-            StringReader stringReader = new StringReader(xamlString);
-            XmlReader xmlReader = XmlReader.Create(stringReader);
-            Section sec = XamlReader.Load(xmlReader) as Section;
-            FlowDocument doc = new FlowDocument();
-            while (sec.Blocks.Count > 0)
-                doc.Blocks.Add(sec.Blocks.FirstBlock);
-            return doc;
-        }
-        public static ImageSource ByteToImage(byte[] imageData)
-        {
-            BitmapImage biImg = new BitmapImage();
-            MemoryStream ms = new MemoryStream(imageData);
-            biImg.BeginInit();
-            biImg.StreamSource = ms;
-            biImg.EndInit();
 
-            ImageSource imgSrc = biImg as ImageSource;
 
-            return imgSrc;
-        }
 
         private void CloseOfferWindow(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-
-        public static Uri GetAbsoluteUrlForLocalFile(string path)
-        {
-            var fileUri = new Uri(path, UriKind.RelativeOrAbsolute);
-
-            if (fileUri.IsAbsoluteUri)
-            {
-                return fileUri;
-            }
-            else
-            {
-                var baseUri = new Uri(Directory.GetCurrentDirectory() + System.IO.Path.DirectorySeparatorChar);
-
-                return new Uri(baseUri, fileUri);
-            }
-        }
-        public static BitmapImage ToBitmapImage(Bitmap bitmap)
-        {
-            using (var memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                return bitmapImage;
-            }
-        }
-
-        public byte[] getJPGFromImageControl(BitmapImage imageC)
-        {
-            MemoryStream memStream = new MemoryStream();
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(imageC));
-            encoder.Save(memStream);
-            return memStream.ToArray();
-        }
-        private static string GetXaml(RichTextBox rt)
-        {
-            TextRange range = new TextRange(rt.Document.ContentStart, rt.Document.ContentEnd);
-            MemoryStream stream = new MemoryStream();
-            range.Save(stream, DataFormats.Xaml);
-            string xamlText = Encoding.UTF8.GetString(stream.ToArray());
-            return xamlText;
-        }
         private void UpdateOffer(object sender, RoutedEventArgs e)
         {
             HallDTO new_hall = new HallDTO();
@@ -179,25 +121,53 @@ namespace BookingApp1._0
             new_hall.Location = HallLocation.Text;
             new_hall.Price = int.Parse(HallPrice.Text);
             new_hall.Capacity = int.Parse(HallCapacity.Text);
-            new_hall.Description = GetXaml(DocReader);
-            thumb50x50 = (BitmapImage)ByteToImage(offerHall.ThumbnailImage);
+            new_hall.Description = DocumentsProcessing.GetXaml(DocReader);
+            if(thumb50x50 == null) thumb50x50 = (BitmapImage)ImageProcessing.ByteToImage(offerHall.ThumbnailImage);
 
             BitmapImage image = OfferThumbnail.Source as BitmapImage;
             if (image == null)
             {
-                image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
-                thumb50x50 = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+                image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+             
             }
-            new_hall.Image = getJPGFromImageControl(image);
-            new_hall.ThumbnailImage = getJPGFromImageControl(thumb50x50);
+            new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
+            new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
             string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(UPDATE_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
             if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
             else MessageBox.Show("Succeed");
+
+            offerHall.Name = new_hall.Name;
+            offerHall.Location = new_hall.Location;
+            offerHall.Price = new_hall.Price;
+            offerHall.Capacity = new_hall.Capacity;
+            offerHall.Description = new_hall.Description;
+            offerHall.ThumbnailImage = new_hall.ThumbnailImage;
+            closing_mode = 1;
         }
 
         private void UploadThumbnail(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Image files|*.bmp;*.jpg;*.png";
+            fileDialog.FilterIndex = 1;
 
+            if (fileDialog.ShowDialog() == true)
+            {
+                Bitmap orig = (Bitmap)System.Drawing.Image.FromFile(fileDialog.FileName);
+                Bitmap resized = new Bitmap(orig, new System.Drawing.Size(450, 300));
+                Bitmap res = new Bitmap(orig, new System.Drawing.Size(50, 50));
+                thumb50x50 = ImageProcessing.ToBitmapImage(res);
+                BitmapImage img = ImageProcessing.ToBitmapImage(resized);
+
+                OfferThumbnail.Source = img;
+            }
+        }
+
+
+        private void NumberValid(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]{1,8}");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }

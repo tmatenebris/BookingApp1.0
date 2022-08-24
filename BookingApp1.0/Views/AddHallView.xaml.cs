@@ -19,7 +19,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Database.Models;
 using Database;
-using Database;
+using BookingApp1._0.Helpers;
+using System.Text.RegularExpressions;
 
 namespace BookingApp1._0.Views
 {
@@ -46,8 +47,8 @@ namespace BookingApp1._0.Views
                 Bitmap orig = (Bitmap)System.Drawing.Image.FromFile(fileDialog.FileName);
                 Bitmap resized = new Bitmap(orig, new System.Drawing.Size(450, 300));
                 Bitmap res = new Bitmap(orig, new System.Drawing.Size(50, 50));
-                thumb50x50 = ToBitmapImage(res);
-                BitmapImage img = ToBitmapImage(resized);
+                thumb50x50 = ImageProcessing.ToBitmapImage(res);
+                BitmapImage img = ImageProcessing.ToBitmapImage(resized);
               
                 Thumbnail.Source = img;
             }
@@ -63,73 +64,27 @@ namespace BookingApp1._0.Views
             new_hall.Location = LocationSet.Text;
             new_hall.Price = int.Parse(PriceSet.Text);
             new_hall.Capacity = int.Parse(CapacitySet.Text);
-            new_hall.Description = GetXaml(DescRTB);
+            new_hall.Description = DocumentsProcessing.GetXaml(DescRTB);
             
 
             BitmapImage image = Thumbnail.Source as BitmapImage;
 
             if (image == null)
             {
-                image = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
-                thumb50x50 = new BitmapImage(GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+                image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+                thumb50x50 = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
             }
-            new_hall.Image = getJPGFromImageControl(image);
-            new_hall.ThumbnailImage = getJPGFromImageControl(thumb50x50);
+            new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
+            new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
             string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
             if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
             else MessageBox.Show("Succeed");
         }
 
-        public static Uri GetAbsoluteUrlForLocalFile(string path)
+        private void NumberValid(object sender, TextCompositionEventArgs e)
         {
-            var fileUri = new Uri(path, UriKind.RelativeOrAbsolute);
-
-            if (fileUri.IsAbsoluteUri)
-            {
-                return fileUri;
-            }
-            else
-            {
-                var baseUri = new Uri(Directory.GetCurrentDirectory() + System.IO.Path.DirectorySeparatorChar);
-
-                return new Uri(baseUri, fileUri);
-            }
+            Regex regex = new Regex("[^0-9]{1,8}");
+            e.Handled = regex.IsMatch(e.Text);
         }
-
-        public static BitmapImage ToBitmapImage(Bitmap bitmap)
-        {
-            using (var memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                return bitmapImage;
-            }
-        }
-
-        public byte[] getJPGFromImageControl(BitmapImage imageC)
-        {
-            MemoryStream memStream = new MemoryStream();
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(imageC));
-            encoder.Save(memStream);
-            return memStream.ToArray();
-        }
-        private static string GetXaml(RichTextBox rt)
-        {
-            TextRange range = new TextRange(rt.Document.ContentStart, rt.Document.ContentEnd);
-            MemoryStream stream = new MemoryStream();
-            range.Save(stream, DataFormats.Xaml);
-            string xamlText = Encoding.UTF8.GetString(stream.ToArray());
-            return xamlText;
-        }
-
     }
 }
