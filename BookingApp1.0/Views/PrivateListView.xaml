@@ -23,7 +23,7 @@
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Text="List of my halls:" Grid.Row="0" FontSize="32" FontWeight="SemiBold" Margin="20 20 0 0" HorizontalAlignment="Left" Foreground="#121518" VerticalAlignment="Center"/>
+            <TextBlock Text="List of My Halls:" Grid.Row="0" FontSize="32" FontWeight="SemiBold" Margin="20 20 0 0" HorizontalAlignment="Left" Foreground="#121518" VerticalAlignment="Center"/>
 
            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
