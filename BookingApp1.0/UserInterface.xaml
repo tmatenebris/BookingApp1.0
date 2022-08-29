@@ -68,7 +68,7 @@
                 <Button Style="{StaticResource menuButton}" Command="{Binding UpdateViewCommand}" CommandParameter="MyBookings">
                     <StackPanel Orientation="Horizontal">
                         <fa:IconImage Icon="Home" Style="{StaticResource menuButtonIcon}"/>
-                        <TextBlock Text="Dashboard" Style="{StaticResource menuButtonText}"/>
+                        <TextBlock Text="Bookings" Style="{StaticResource menuButtonText}"/>
                     </StackPanel>
                 </Button>
 
