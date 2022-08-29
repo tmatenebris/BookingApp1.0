@@ -38,27 +38,29 @@ namespace BookingApp1._0
             offerHall = current;
 
             Loaded += OfferScreen_Load;
+
+            if ((offerHall.OwnerId == App.appuser.UserId) || (App.appuser.Role == "admin"))
+            {
+                BookButton.Visibility = Visibility.Hidden;
+                UpdateButton.Visibility = Visibility.Visible;
+                mainToolBar.Visibility = Visibility.Visible;
+                DocReader.IsReadOnly = false;
+                FromDate.Visibility = Visibility.Hidden;
+                ToDate.Visibility = Visibility.Hidden;
+                HallName.IsReadOnly = false;
+                HallPrice.IsReadOnly = false;
+                HallLocation.IsReadOnly = false;
+                HallCapacity.IsReadOnly = false;
+                UploadButton.Visibility = Visibility.Visible;
+                Block.Visibility = Visibility.Hidden;
+            }
         }
 
         private async void OfferScreen_Load(object sender, EventArgs e)
         {
             try
             {
-                if ((offerHall.OwnerId == App.appuser.UserId) || (App.appuser.Role == "admin"))
-                {
-                    BookButton.Visibility = Visibility.Hidden;
-                    UpdateButton.Visibility = Visibility.Visible;
-                    mainToolBar.Visibility = Visibility.Visible;
-                    DocReader.IsReadOnly = false;
-                    FromDate.Visibility = Visibility.Hidden;
-                    ToDate.Visibility = Visibility.Hidden;
-                    HallName.IsReadOnly = false;
-                    HallPrice.IsReadOnly = false;
-                    HallLocation.IsReadOnly = false;
-                    HallCapacity.IsReadOnly = false;
-                    UploadButton.Visibility = Visibility.Visible;
-                    Block.Visibility = Visibility.Hidden;
-                }
+
 
                 string result = TCPConnection.TCPClient.ServerRequestWithResponse("[(GET_OFFER)]: (" + offerHall.HallId.ToString() + ")");
 
