@@ -29,26 +29,30 @@ namespace BookingApp1._0
 
         private void RegisterAccount(object sender, RoutedEventArgs e)
         {
-            User user = new User();
-            user.Username = Username.Text;
-            user.FirstName = FirstName.Text;
-            user.LastName = LastName.Text;
-            user.Email = EMail.Text;
-            user.PhoneNumber = PhoneNumber.Text;
-            user.Password = Password.Password;
-            
-
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_USER)]"+XMLSerialize.Serialize<User>(user));
-
-            if(response == "succeed")
+            if (Username.Text != String.Empty && FirstName.Text != String.Empty && LastName.Text != String.Empty && EMail.Text != String.Empty && PhoneNumber.Text != String.Empty && Password.Password != String.Empty)
             {
-                MessageBox.Show("Registered!");
-                Close();
+                User user = new User();
+                user.Username = Username.Text;
+                user.FirstName = FirstName.Text;
+                user.LastName = LastName.Text;
+                user.Email = EMail.Text;
+                user.PhoneNumber = PhoneNumber.Text;
+                user.Password = Password.Password;
+
+
+                string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_USER)]" + XMLSerialize.Serialize<User>(user));
+
+                if (response == "succeed")
+                {
+                    MessageBox.Show("Registered!");
+                    Close();
+                }
+                else
+                {
+                    MessageBox.Show("User with that username exists!");
+                }
             }
-            else
-            {
-                MessageBox.Show("User with that username exists!");
-            }
+            else MessageBox.Show("You must fill out the gapes!");
         }
 
         private void CloseWindow(object sender, RoutedEventArgs e)

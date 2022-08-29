@@ -42,15 +42,18 @@ namespace BookingApp1._0
 
         private void ApplyFilters(object sender, RoutedEventArgs e)
         {
-            closing_mode = 1;
-            Filters.location = Locations.Text;
-            Filters.from_date = LowDate.Text;
-            Filters.to_date = HighDate.Text;
-            Filters.from_capacity = int.Parse(LowCapacity.Text);
-            Filters.to_capacity = int.Parse(HighCapacity.Text);
-            Filters.from_price = int.Parse(LowPrice.Text);
-            Filters.to_price = int.Parse(HighPrice.Text);
-            Close();
+            if (Locations.Text != String.Empty && LowDate.Text != String.Empty && HighDate.Text != String.Empty && LowCapacity.Text != String.Empty && HighCapacity.Text != String.Empty && LowPrice.Text != String.Empty && HighPrice.Text != String.Empty)
+            {
+                closing_mode = 1;
+                Filters.location = Locations.Text;
+                Filters.from_date = LowDate.Text;
+                Filters.to_date = HighDate.Text;
+                Filters.from_capacity = int.Parse(LowCapacity.Text);
+                Filters.to_capacity = int.Parse(HighCapacity.Text);
+                Filters.from_price = int.Parse(LowPrice.Text);
+                Filters.to_price = int.Parse(HighPrice.Text);
+                Close();
+            } else MessageBox.Show("You must fill out the gapes!");
         }
     }
 }

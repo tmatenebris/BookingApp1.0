@@ -87,20 +87,24 @@ namespace BookingApp1._0
 
         private void Book(object sender, RoutedEventArgs e)
         {
-            Booking new_booking = new Booking();
+            if (FromDate.SelectedDate.HasValue && ToDate.SelectedDate.HasValue)
+            {
+                Booking new_booking = new Booking();
 
-            new_booking.UserId = App.appuser.UserId;
-            new_booking.HallId = offerHall.HallId;
-            new_booking.OwnerId = offerHall.OwnerId;
-            new_booking.FromDate = new DateOnly(FromDate.SelectedDate.Value.Year, FromDate.SelectedDate.Value.Month, FromDate.SelectedDate.Value.Day);
-            new_booking.ToDate = new DateOnly(ToDate.SelectedDate.Value.Year, ToDate.SelectedDate.Value.Month, ToDate.SelectedDate.Value.Day);
-            var date = ToDate.SelectedDate.Value - FromDate.SelectedDate.Value;
-            new_booking.TotalPrice = date.Days * offerHall.Price;
+                new_booking.UserId = App.appuser.UserId;
+                new_booking.HallId = offerHall.HallId;
+                new_booking.OwnerId = offerHall.OwnerId;
+                new_booking.FromDate = new DateOnly(FromDate.SelectedDate.Value.Year, FromDate.SelectedDate.Value.Month, FromDate.SelectedDate.Value.Day);
+                new_booking.ToDate = new DateOnly(ToDate.SelectedDate.Value.Year, ToDate.SelectedDate.Value.Month, ToDate.SelectedDate.Value.Day);
+                var date = ToDate.SelectedDate.Value - FromDate.SelectedDate.Value;
+                new_booking.TotalPrice = date.Days * offerHall.Price;
 
 
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_BOOKING)]"+XMLSerialize.Serialize<Booking>(new_booking));
-            if (response == "error") MessageBox.Show("Error");
-            else MessageBox.Show("Succeed");
+                string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_BOOKING)]" + XMLSerialize.Serialize<Booking>(new_booking));
+                if (response == "error") MessageBox.Show("Error");
+                else MessageBox.Show("Succeed");
+            }
+            else MessageBox.Show("You must pick dates!");
         }
 
 
@@ -113,36 +117,40 @@ namespace BookingApp1._0
 
         private void UpdateOffer(object sender, RoutedEventArgs e)
         {
-            HallDTO new_hall = new HallDTO();
-
-            new_hall.HallId = offerHall.HallId;
-            new_hall.OwnerId = App.appuser.UserId;
-            new_hall.Name = HallName.Text;
-            new_hall.Location = HallLocation.Text;
-            new_hall.Price = int.Parse(HallPrice.Text);
-            new_hall.Capacity = int.Parse(HallCapacity.Text);
-            new_hall.Description = DocumentsProcessing.GetXaml(DocReader);
-            if(thumb50x50 == null) thumb50x50 = (BitmapImage)ImageProcessing.ByteToImage(offerHall.ThumbnailImage);
-
-            BitmapImage image = OfferThumbnail.Source as BitmapImage;
-            if (image == null)
+            if (HallName.Text != String.Empty && HallLocation.Text != String.Empty && HallPrice.Text != String.Empty && HallCapacity.Text != String.Empty)
             {
-                image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
-             
-            }
-            new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
-            new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(UPDATE_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
-            if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
-            else MessageBox.Show("Succeed");
+                HallDTO new_hall = new HallDTO();
 
-            offerHall.Name = new_hall.Name;
-            offerHall.Location = new_hall.Location;
-            offerHall.Price = new_hall.Price;
-            offerHall.Capacity = new_hall.Capacity;
-            offerHall.Description = new_hall.Description;
-            offerHall.ThumbnailImage = new_hall.ThumbnailImage;
-            closing_mode = 1;
+                new_hall.HallId = offerHall.HallId;
+                new_hall.OwnerId = App.appuser.UserId;
+                new_hall.Name = HallName.Text;
+                new_hall.Location = HallLocation.Text;
+                new_hall.Price = int.Parse(HallPrice.Text);
+                new_hall.Capacity = int.Parse(HallCapacity.Text);
+                new_hall.Description = DocumentsProcessing.GetXaml(DocReader);
+                if (thumb50x50 == null) thumb50x50 = (BitmapImage)ImageProcessing.ByteToImage(offerHall.ThumbnailImage);
+
+                BitmapImage image = OfferThumbnail.Source as BitmapImage;
+                if (image == null)
+                {
+                    image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+
+                }
+                new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
+                new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
+                string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(UPDATE_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
+                if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
+                else MessageBox.Show("Succeed");
+
+                offerHall.Name = new_hall.Name;
+                offerHall.Location = new_hall.Location;
+                offerHall.Price = new_hall.Price;
+                offerHall.Capacity = new_hall.Capacity;
+                offerHall.Description = new_hall.Description;
+                offerHall.ThumbnailImage = new_hall.ThumbnailImage;
+                closing_mode = 1;
+            }
+            else MessageBox.Show("You must fill out the gapes!");
         }
 
         private void UploadThumbnail(object sender, RoutedEventArgs e)

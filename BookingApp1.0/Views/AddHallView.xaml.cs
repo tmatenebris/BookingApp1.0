@@ -56,29 +56,33 @@ namespace BookingApp1._0.Views
 
         private void UploadOffer(object sender, RoutedEventArgs e)
         {
-            HallDTO new_hall = new HallDTO();
-     
-
-            new_hall.OwnerId = App.appuser.UserId;
-            new_hall.Name = NameSet.Text;
-            new_hall.Location = LocationSet.Text;
-            new_hall.Price = int.Parse(PriceSet.Text);
-            new_hall.Capacity = int.Parse(CapacitySet.Text);
-            new_hall.Description = DocumentsProcessing.GetXaml(DescRTB);
-            
-
-            BitmapImage image = Thumbnail.Source as BitmapImage;
-
-            if (image == null)
+            if (NameSet.Text != String.Empty && LocationSet.Text != String.Empty && PriceSet.Text != String.Empty && CapacitySet.Text != String.Empty)
             {
-                image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
-                thumb50x50 = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+                HallDTO new_hall = new HallDTO();
+
+
+                new_hall.OwnerId = App.appuser.UserId;
+                new_hall.Name = NameSet.Text;
+                new_hall.Location = LocationSet.Text;
+                new_hall.Price = int.Parse(PriceSet.Text);
+                new_hall.Capacity = int.Parse(CapacitySet.Text);
+                new_hall.Description = DocumentsProcessing.GetXaml(DescRTB);
+
+
+                BitmapImage image = Thumbnail.Source as BitmapImage;
+
+                if (image == null)
+                {
+                    image = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/image-placeholder.png"));
+                    thumb50x50 = new BitmapImage(LocalFilesProcessing.GetAbsoluteUrlForLocalFile(Directory.GetCurrentDirectory() + "/Assets/rsz_image-placeholder.png"));
+                }
+                new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
+                new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
+                string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
+                if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
+                else MessageBox.Show("Succeed");
             }
-            new_hall.Image = ImageProcessing.GetJPGFromImageControl(image);
-            new_hall.ThumbnailImage = ImageProcessing.GetJPGFromImageControl(thumb50x50);
-            string response = TCPConnection.TCPClient.ServerRequestWithResponse("[(ADD_HALL)]" + XMLSerialize.Serialize<HallDTO>(new_hall));
-            if (response == "error") MessageBox.Show("Error Occured While Adding Offer");
-            else MessageBox.Show("Succeed");
+            else MessageBox.Show("You must fill out all the gaps");
         }
 
         private void NumberValid(object sender, TextCompositionEventArgs e)

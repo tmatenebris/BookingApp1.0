@@ -57,12 +57,16 @@ namespace BookingApp1._0.Views
 
         private async void UpdateUser(object sender, RoutedEventArgs e)
         {
-             App.appuser.FirstName = FirstName.Text;
-             App.appuser.LastName = LastName.Text;
-             App.appuser.PhoneNumber = PhoneNumber.Text;
-             App.appuser.Email = EMail.Text;
-             string response = await UpdateRequest(App.appuser);
-             if (response == "error") MessageBox.Show("Unable to Update User");
+            if (FirstName.Text != String.Empty && LastName.Text != String.Empty && PhoneNumber.Text != String.Empty && EMail.Text != String.Empty)
+            {
+                App.appuser.FirstName = FirstName.Text;
+                App.appuser.LastName = LastName.Text;
+                App.appuser.PhoneNumber = PhoneNumber.Text;
+                App.appuser.Email = EMail.Text;
+                string response = await UpdateRequest(App.appuser);
+                if (response == "error") MessageBox.Show("Unable to Update User");
+            }
+            else MessageBox.Show("You must fill out the gapes!");
         }
 
         private async void DeleteUser(object sender, RoutedEventArgs e)

@@ -682,6 +682,7 @@ namespace TCPConnection
             {
                 listener.Bind(localEndPoint);
                 listener.Listen(10);
+                Console.WriteLine("OK");
                 while (true)
                 {
 
@@ -701,6 +702,8 @@ namespace TCPConnection
             {
 
             }
+
+         
 
 
 
@@ -728,161 +731,174 @@ namespace TCPConnection
         public static void ReadCallback(IAsyncResult ar)
         {
             String content = String.Empty;
-
-            // Retrieve the state object and the handler socket  
-            // from the asynchronous state object.  
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-          
-            
-            // Read data from the client socket.
-            int bytesRead = handler.EndReceive(ar);
-
-            if (bytesRead > 0)
+            StateObject state = null;
+            Socket handler = null;
+            int bytesRead = 0;
+            try
             {
+                content = String.Empty;
 
-                state.sb.Append(Encoding.ASCII.GetString(
-                    state.buffer, 0, bytesRead));
+                // Retrieve the state object and the handler socket  
+                // from the asynchronous state object.  
+                state = (StateObject)ar.AsyncState;
+                handler = state.workSocket;
 
-                content = state.sb.ToString();
-                if (content.IndexOf("<EOF>") > -1)
+
+                // Read data from the client socket.
+                bytesRead = handler.EndReceive(ar);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+                if (bytesRead > 0)
                 {
-                    ClientConnection current = null;
-                    Console.WriteLine(content);
-                    foreach (ClientConnection client in clients)
-                    {
-                        if (handler == client.clientSocket)
-                        {
-                            current = client;
-                            break;
-                        }
-                    }
-                    content = content.Replace("<EOF>", "");
-                    if (content.IndexOf("[(ADD_USER)]") != -1)
-                    {
-                        content = content.Replace("[(ADD_USER)]", "");
-                        AddUser(handler, content);                        
-                    }
-                    else if (content.IndexOf("[(UPDATE_HALL)]") > -1)
-                    {
-                        content = content.Replace("[(UPDATE_HALL)]", "");
-                        UpdateHall(current,handler, content);
-                     
-                    }
-                    else if (content.IndexOf("[(ADD_HALL)]") != -1)
-                    {
-                        content = content.Replace("[(ADD_HALL)]", "");
-                        AddHall(current, handler, content);
 
-                    }
-                    else if(content.IndexOf("[(ADD_BOOKING)]") > -1)
+                    state.sb.Append(Encoding.ASCII.GetString(
+                        state.buffer, 0, bytesRead));
+
+                    content = state.sb.ToString();
+                    if (content.IndexOf("<EOF>") > -1)
                     {
-                        content = content.Replace("[(ADD_BOOKING)]", "");
-                        AddBooking(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(GET_MY_BOOKINGS)]") > -1)
-                    {
-                        content = content.Replace("[(GET_MY_BOOKINGS)]", "");
-                        GetUserBookings(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(GET_ALL_BOOKINGS)]") > -1)
-                    {
-                        content = content.Replace("[(GET_ALL_BOOKINGS)]", "");
-                        GetAllBookings(handler, content);   
-                    }
-                    else if (content.IndexOf("[(DELETE_HALL)]:") > -1)
-                    {
-                        content = content.Replace("[(DELETE_HALL)]:", "");
-                        content  = content.Replace("(", "");
-                        content = content.Replace(")", "");
-                        DeleteHall(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(DELETE_BOOKING)]:") > -1)
-                    {
-                        content = content.Replace("[(DELETE_BOOKING)]:", "");
-                        content = content.Replace("(", "");
-                        content = content.Replace(")", "");
-                        DeleteBooking(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(DELETE_USER)]:") > -1)
-                    {
-                        content = content.Replace("[(DELETE_USER)]:", "");
-                        content = content.Replace("(", "");
-                        content = content.Replace(")", "");
-                        DeleteUser(handler, content);
-                    }
-                    else if (content.IndexOf("[(UPDATE_USER)]") > -1)
-                    {
-                        content = content.Replace("[(UPDATE_USER)]", "");
-                        UpdateUser(handler, content);
-                    }
-                    else if (content.IndexOf("[(GET_FILTERED_DATA)]") > -1)
-                    {
-                        content = content.Replace("[(GET_FILTERED_DATA)]", "");
-                        GetFilteredData(current, handler, content);
-                    }
-                    else if (content == "[(GET_FILTERS_INITIAL)]")
-                    {
-                        GetFiltersInitial(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(GET_USER_FILTERS_INITIAL)]:") > -1)
-                    {
-                        content = content.Replace("[(GET_USER_FILTERS_INITIAL)]:", "");
-                        content = content.Replace("(", "");
-                        content = content.Replace(")", "");
-                        GetUserFiltersInitial(current, handler, content);
-                    }
-                    else if (content == "[(GET_USERS)]")
-                    {
-                        GetUsers(handler, content);
-                    }
-                    else if (content == "[(GET_HALLS)]")
-                    {
-                        GetHalls(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(GET_OFFER)]:") != -1)
-                    {
-                        content = content.Replace("[(GET_OFFER)]:", "");
-                        content = content.Replace("(", "");
-                        content = content.Replace(")", "");
-                        GetOffer(current, handler, content);
-                    }
-                    else if (content.IndexOf("[(LOGIN)]:") != -1)
-                    {
-                        Login(current, handler, content);
-                    }
-                    else if(content.IndexOf("[(GET_MY_HALLS)]") > -1)
-                    {
-                        GetUserHalls(current, handler, content);
-                    }
-                    else if (content.ToLower() == "exit") // Client wants to exit gracefully
-                    {
-                        //Always Shutdown before closing
-                        current.clientSocket.Shutdown(SocketShutdown.Both);
-                        current.clientSocket.Close();
-                        clients.Remove(current);
-                        Console.WriteLine("Client disconnected");
-                        return;
+                        ClientConnection current = null;
+                        Console.WriteLine(content);
+                        foreach (ClientConnection client in clients)
+                        {
+                            if (handler == client.clientSocket)
+                            {
+                                current = client;
+                                break;
+                            }
+                        }
+                        content = content.Replace("<EOF>", "");
+                        if (content.IndexOf("[(ADD_USER)]") != -1)
+                        {
+                            content = content.Replace("[(ADD_USER)]", "");
+                            AddUser(handler, content);
+                        }
+                        else if (content.IndexOf("[(UPDATE_HALL)]") > -1)
+                        {
+                            content = content.Replace("[(UPDATE_HALL)]", "");
+                            UpdateHall(current, handler, content);
+
+                        }
+                        else if (content.IndexOf("[(ADD_HALL)]") != -1)
+                        {
+                            content = content.Replace("[(ADD_HALL)]", "");
+                            AddHall(current, handler, content);
+
+                        }
+                        else if (content.IndexOf("[(ADD_BOOKING)]") > -1)
+                        {
+                            content = content.Replace("[(ADD_BOOKING)]", "");
+                            AddBooking(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_MY_BOOKINGS)]") > -1)
+                        {
+                            content = content.Replace("[(GET_MY_BOOKINGS)]", "");
+                            GetUserBookings(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_ALL_BOOKINGS)]") > -1)
+                        {
+                            content = content.Replace("[(GET_ALL_BOOKINGS)]", "");
+                            GetAllBookings(handler, content);
+                        }
+                        else if (content.IndexOf("[(DELETE_HALL)]:") > -1)
+                        {
+                            content = content.Replace("[(DELETE_HALL)]:", "");
+                            content = content.Replace("(", "");
+                            content = content.Replace(")", "");
+                            DeleteHall(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(DELETE_BOOKING)]:") > -1)
+                        {
+                            content = content.Replace("[(DELETE_BOOKING)]:", "");
+                            content = content.Replace("(", "");
+                            content = content.Replace(")", "");
+                            DeleteBooking(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(DELETE_USER)]:") > -1)
+                        {
+                            content = content.Replace("[(DELETE_USER)]:", "");
+                            content = content.Replace("(", "");
+                            content = content.Replace(")", "");
+                            DeleteUser(handler, content);
+                        }
+                        else if (content.IndexOf("[(UPDATE_USER)]") > -1)
+                        {
+                            content = content.Replace("[(UPDATE_USER)]", "");
+                            UpdateUser(handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_FILTERED_DATA)]") > -1)
+                        {
+                            content = content.Replace("[(GET_FILTERED_DATA)]", "");
+                            GetFilteredData(current, handler, content);
+                        }
+                        else if (content == "[(GET_FILTERS_INITIAL)]")
+                        {
+                            GetFiltersInitial(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_USER_FILTERS_INITIAL)]:") > -1)
+                        {
+                            content = content.Replace("[(GET_USER_FILTERS_INITIAL)]:", "");
+                            content = content.Replace("(", "");
+                            content = content.Replace(")", "");
+                            GetUserFiltersInitial(current, handler, content);
+                        }
+                        else if (content == "[(GET_USERS)]")
+                        {
+                            GetUsers(handler, content);
+                        }
+                        else if (content == "[(GET_HALLS)]")
+                        {
+                            GetHalls(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_OFFER)]:") != -1)
+                        {
+                            content = content.Replace("[(GET_OFFER)]:", "");
+                            content = content.Replace("(", "");
+                            content = content.Replace(")", "");
+                            GetOffer(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(LOGIN)]:") != -1)
+                        {
+                            Login(current, handler, content);
+                        }
+                        else if (content.IndexOf("[(GET_MY_HALLS)]") > -1)
+                        {
+                            GetUserHalls(current, handler, content);
+                        }
+                        else if (content.ToLower() == "exit") // Client wants to exit gracefully
+                        {
+                            //Always Shutdown before closing
+                            current.clientSocket.Shutdown(SocketShutdown.Both);
+                            current.clientSocket.Close();
+                            clients.Remove(current);
+                            Console.WriteLine("Client disconnected");
+                            return;
+                        }
+                        else
+                        {
+                            current.clientSocket.Shutdown(SocketShutdown.Both);
+                            current.clientSocket.Close();
+                            clients.Remove(current);
+                            Console.WriteLine("Client disconnected");
+                            return;
+                        }
+                        state.sb.Clear();
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReadCallback), state);
                     }
                     else
                     {
-                        current.clientSocket.Shutdown(SocketShutdown.Both);
-                        current.clientSocket.Close();
-                        clients.Remove(current);
-                        Console.WriteLine("Client disconnected");
-                        return;
+                        // Not all data received. Get more.  
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReadCallback), state);
                     }
-                    state.sb.Clear();
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
                 }
-                else
-                {
-                    // Not all data received. Get more.  
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
-            }
+            
+
         }
 
         private static void Send(Socket handler, String data)

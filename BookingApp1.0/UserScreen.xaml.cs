@@ -37,14 +37,18 @@ namespace BookingApp1._0
 
         private void UpdateUser(object sender, RoutedEventArgs e)
         {
-            
-            user_to_modify.Username = Username.Text;
-            user_to_modify.FirstName = FirstName.Text;
-            user_to_modify.LastName = LastName.Text;
-            user_to_modify.PhoneNumber = PhoneNumber.Text;
-            user_to_modify.Email = EMail.Text;
-            closing_mode = 1;
-            Close();
+
+            if (Username.Text != String.Empty && FirstName.Text != String.Empty && LastName.Text != String.Empty && EMail.Text != String.Empty)
+            {
+                user_to_modify.Username = Username.Text;
+                user_to_modify.FirstName = FirstName.Text;
+                user_to_modify.LastName = LastName.Text;
+                user_to_modify.PhoneNumber = PhoneNumber.Text;
+                user_to_modify.Email = EMail.Text;
+                closing_mode = 1;
+                Close();
+            } else MessageBox.Show("You must fill out the gapes!");
+           
         }
 
         private void DeleteUser(object sender, RoutedEventArgs e)
