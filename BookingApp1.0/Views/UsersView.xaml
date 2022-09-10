@@ -77,10 +77,10 @@
 
                     </Button>
                     <Rectangle Width="1" Fill="#dee4ec" Margin="3 7"></Rectangle>
-
-                    <TextBlock x:Name="Number" Text="1" Width="20"/>
-                    <TextBlock Text="/" Width="20"/>
-                    <TextBlock x:Name="MaxNumber" Text="1" Width="20"/>
+                    
+                    <TextBlock x:Name="Number" Text="1" Width="20" TextAlignment="Center"/>
+                    <TextBlock Text="/" Width="20" TextAlignment="Center"/>
+                    <TextBlock x:Name="MaxNumber" Text="1" Width="20" TextAlignment="Center"/>
 
                     <Rectangle Width="1" Fill="#DEE4EC" Margin="3 7"/>
                     <Button Style="{StaticResource pagingButton}" x:Name="NextPage" Click="OnNextClicked">

@@ -86,9 +86,9 @@
 
                     </Button>
 
-                    <TextBlock x:Name="Number" Text="1" Width="20"/>
-                    <TextBlock Text="/" Width="20"/>
-                    <TextBlock x:Name="MaxNumber" Text="1" Width="20"/>
+                    <TextBlock x:Name="Number" Text="1" Width="20" TextAlignment="Center"/>
+                    <TextBlock Text="/" Width="20" TextAlignment="Center"/>
+                    <TextBlock x:Name="MaxNumber" Text="1" Width="20" TextAlignment="Center"/>
 
                     <Button Style="{StaticResource pagingButton}" Click="OnNextClicked" x:Name="NextPage">
                         <fa:IconImage Icon="AngleRight" Style="{StaticResource pagingButtonIcon}"/>
