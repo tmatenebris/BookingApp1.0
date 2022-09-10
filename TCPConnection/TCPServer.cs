@@ -586,9 +586,11 @@ namespace TCPConnection
             string result = "error";
             try
             {
-                
+               
                 using (var context = new BookingAppContext())
                 {
+                    context.Database.ExecuteSqlRaw("call clear_bookings()");
+                    context.SaveChanges();
                     var user = context.Users.Where(s => s.Username == login && s.Password == password).First();
 
                     result = XMLSerialize.Serialize<User>(user);
