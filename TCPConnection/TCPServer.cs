@@ -137,7 +137,8 @@ namespace TCPConnection
             }
             Console.WriteLine(content);
         }
-
+        
+        //dodawanie nowej rezerwacji
         private static void AddBooking(ClientConnection current, Socket handler, string content)
         {
             string result = "error";
@@ -147,20 +148,20 @@ namespace TCPConnection
                 { 
                     Booking new_booking = XMLSerialize.Deserialize<Booking>(content);
 
-                    DbConnection con = context.Database.GetDbConnection();
+                    DbConnection con = context.Database.GetDbConnection(); //pobieranie informacji o polaczeniu na bazie kontekstu
 
-                    con.Open();
-                    DbCommand cmd = con.CreateCommand();
-                    Console.WriteLine(new_booking.FromDateString);
-                    Console.WriteLine(new_booking.ToDateString);
-                    cmd.CommandText = "select * from isavailable(" + new_booking.HallId + ",'" + new_booking.FromDateString + "', '" + new_booking.ToDateString + "')";
+                    con.Open();                                            //otwarcie polaczenia
+                    DbCommand cmd = con.CreateCommand();                   //tworzymy komende
+                    //Console.WriteLine(new_booking.FromDateString);
+                    //Console.WriteLine(new_booking.ToDateString);
+                    cmd.CommandText = "select * from isavailable(" + new_booking.HallId + ",'" + new_booking.FromDateString + "', '" + new_booking.ToDateString + "')"; //definicja komendy, sprawdzanie dostepnosci 0 - dostepne, > 0 - niedostepne
 
                     DbDataReader reader = cmd.ExecuteReader();
                     int status = 0;
-                    if (reader.HasRows)
+                    if (reader.HasRows) //jezeli sa wiersze
                     {
                         reader.Read();
-                        status = reader.GetInt32(0);
+                        status = reader.GetInt32(0); //czytanie zwroconej wartosci
 
                     }
                     if (status != 0) throw new Exception();
@@ -168,8 +169,8 @@ namespace TCPConnection
                     reader.Close();
                     con.Close();
 
-
-                    context.Bookings.Add(new_booking);
+                    //dodanie i zapisanie zmian kontekstu
+                    context.Bookings.Add(new_booking);   
                     context.SaveChanges();
 
                     result = "succeed";
@@ -233,6 +234,7 @@ namespace TCPConnection
             
         }
 
+        //usuwanie hal
         private static void DeleteHall(ClientConnection current, Socket handler, string content)
         {
             string result = "error";
@@ -240,11 +242,11 @@ namespace TCPConnection
               {
                 using (var context = new BookingAppContext(current.options.Options))
                 {
-                    int hall_id = Convert.ToInt32(content);
-                    context.Remove(context.Imagesandescs.Single(s => s.HallId == hall_id));
-                    context.SaveChanges();
-                    context.Remove(context.Halls.Single(s => s.HallId == hall_id));
-                    context.SaveChanges();
+                    int hall_id = Convert.ToInt32(content);                                                           //odczytwanie hall id
+                    context.Remove(context.Imagesandescs.Single(s => s.HallId == hall_id));                           //odnalezienie i usuniecie opisu oraz zdjecia nalezacego do hali z tabeli imagesandesc
+                    context.SaveChanges();                                                                            //zapisanie zmian
+                    context.Remove(context.Halls.Single(s => s.HallId == hall_id));                                   //usuniecie hali z tabeli halls
+                    context.SaveChanges();                                                                            //zapisanie zmian
 
                     result = "succeed";
                     Send(handler, result + "<EOF>");
@@ -311,6 +313,7 @@ namespace TCPConnection
             Console.WriteLine(content);
         }
 
+        //pobieranie przefiltrowanych informacji
         private static void GetFilteredData(ClientConnection current, Socket handler, string content)
         {
             string result = "error";
@@ -319,17 +322,18 @@ namespace TCPConnection
                 using (var context = new BookingAppContext(current.options.Options))
                 {
 
-                    Filters to_apply = XMLSerialize.Deserialize<Filters>(content);
+                    Filters to_apply = XMLSerialize.Deserialize<Filters>(content);        //odczytanie informacji o filtrach podanych przez uzytkownika
 
                     DbConnection con = context.Database.GetDbConnection();
 
                     con.Open();
                     DbCommand cmd = con.CreateCommand();
 
-                    if (to_apply.userid != -1)
+                    if (to_apply.userid != -1)                                          //jezeli user id != -1 to znaczy, ze potrzebujemy danych specyficznych dla danego uzytkownika
                     {
+                        //dla listy ogolnej
                         cmd.CommandText = @"select * from getuserfiltereddata('" + to_apply.from_date + "', '" + to_apply.to_date + "', " + to_apply.from_price + ", " + to_apply.to_price + ", " + to_apply.from_capacity + "," + to_apply.to_capacity + ", '" + to_apply.location + "', " + to_apply.userid + ")";
-                    }
+                    }   //dla listy hal użytkownika
                     else cmd.CommandText = @"select * from getfiltereddata('" + to_apply.from_date + "', '" + to_apply.to_date + "', " + to_apply.from_price + ", " + to_apply.to_price + ", " + to_apply.from_capacity + "," + to_apply.to_capacity + ", '" + to_apply.location + "')";
 
                     DbDataReader reader = cmd.ExecuteReader();
@@ -341,18 +345,20 @@ namespace TCPConnection
                             HallDTO hallDTO = new HallDTO();
 
                             HallDTO tmp = new HallDTO();
-                            tmp.HallId = reader.GetInt32(0);
-                            tmp.Name = reader.GetString(1);
-                            tmp.Location = reader.GetString(2);
-                            tmp.Price = reader.GetInt32(3);
-                            tmp.Capacity = reader.GetInt32(4);
-                            tmp.ThumbnailImage = Convert.FromBase64String(reader.GetString(5));
-                            halls.Add(tmp);
+                            tmp.HallId = reader.GetInt32(0);                                                 //odczytujemy id hali
+                            tmp.Name = reader.GetString(1);                                                  //nazwe hali               
+                            tmp.Location = reader.GetString(2);                                              //lokacje
+                            tmp.Price = reader.GetInt32(3);                                                  //cene
+                            tmp.Capacity = reader.GetInt32(4);                                               //pojemnosc
+                            tmp.ThumbnailImage = Convert.FromBase64String(reader.GetString(5));              //ikonke
+                            halls.Add(tmp);                                                                  //dodajemy do listy przefiltrowanych 
                         }
                     }
 
+                    //zamykamy reader i polaczenie
                     reader.Close();
                     con.Close();
+                    //serializujemy liste i wysylamy
                     result = XMLSerialize.Serialize<List<HallDTO>>(halls);
                     Console.WriteLine(result);
                     Send(handler, result + "<EOF>");
@@ -366,6 +372,7 @@ namespace TCPConnection
             Console.WriteLine(content);
         }
 
+        //pobieranie poczatkowych inforacji o filtrach
         private static void GetFiltersInitial(ClientConnection current, Socket handler, string content)
         {
             string result = "error";
@@ -374,37 +381,37 @@ namespace TCPConnection
                 using (var context = new BookingAppContext(current.options.Options))
                 {
 
-                    Filters initFilters = new Filters();
+                    Filters initFilters = new Filters();    //tworzenie obiektu filtrow
 
                     DbConnection con = context.Database.GetDbConnection();
 
                     con.Open();
                     DbCommand cmd = con.CreateCommand();
 
-                    cmd.CommandText = "select * from getminmaxprice()";
+                    cmd.CommandText = "select * from getminmaxprice()";               //bedziemy wywolywac funkcje zwracajaca informacje o widelkach cenowych
 
                     DbDataReader reader = cmd.ExecuteReader();
 
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        initFilters.from_price = reader.GetInt32(0);
-                        initFilters.to_price = reader.GetInt32(1);
+                        initFilters.from_price = reader.GetInt32(0);                 //minimalna cena
+                        initFilters.to_price = reader.GetInt32(1);                   //maksymalna cena
                     }
 
                     reader.Dispose();
-                    cmd.CommandText = "select * from getminmaxcapacity()";
+                    cmd.CommandText = "select * from getminmaxcapacity()";          //bedziemy wywolywac funkcje zwracajaca informacje o widelkach pojemnosciowych
                     reader = cmd.ExecuteReader();
 
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        initFilters.from_capacity = reader.GetInt32(0);
-                        initFilters.to_capacity = reader.GetInt32(1);
+                        initFilters.from_capacity = reader.GetInt32(0);            //minimalna pojemnosc
+                        initFilters.to_capacity = reader.GetInt32(1);              //maksymalna pojemnosc
                     }
 
                     reader.Dispose();
-                    cmd.CommandText = "select * from getlocations()";
+                    cmd.CommandText = "select * from getlocations()";             //bedziemy wywolywac funkcje zwracajaca unikatowe lokacje
                     reader = cmd.ExecuteReader();
 
 
@@ -412,14 +419,16 @@ namespace TCPConnection
                     {
                         while (reader.Read())
                         {
-                            initFilters.locations.Add(reader.GetString(0));
+                            initFilters.locations.Add(reader.GetString(0));     //dodawanie lokacji do listy
                         }
                     }
 
+                    //zamykamy reader i polaczenie
                     reader.Close();
 
                     con.Close();
 
+                    //serializujemy i wysylamy
                     result = XMLSerialize.Serialize<Filters>(initFilters);
 
                     Console.WriteLine(result);
@@ -435,6 +444,7 @@ namespace TCPConnection
             Console.WriteLine(content);
         }
 
+        //pobieranie poczatkowych inforacji o filtrach specyficznych dla uzytkownika
         private static void GetUserFiltersInitial(ClientConnection current, Socket handler, string content)
         {
             string uid = content;
@@ -443,37 +453,37 @@ namespace TCPConnection
             {
                 using (var context = new BookingAppContext(current.options.Options))
                 {
-                    Filters initFilters = new Filters();
+                    Filters initFilters = new Filters();   //tworzenie obiektu filtrow
 
                     DbConnection con = context.Database.GetDbConnection();
 
                     con.Open();
                     DbCommand cmd = con.CreateCommand();
 
-                    cmd.CommandText = "select * from getuserminmaxprice('" + uid + "')";
+                    cmd.CommandText = "select * from getuserminmaxprice('" + uid + "')";   //bedziemy wywolywac funkcje zwracajaca informacje o widelkach cenowych
 
                     DbDataReader reader = cmd.ExecuteReader();
 
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        initFilters.from_price = reader.GetInt32(0);
-                        initFilters.to_price = reader.GetInt32(1);
+                        initFilters.from_price = reader.GetInt32(0);                      //minimalna cena
+                        initFilters.to_price = reader.GetInt32(1);                        //maksymalna cena
                     }
 
                     reader.Dispose();
-                    cmd.CommandText = "select * from getuserminmaxcapacity('" + uid + "')";
+                    cmd.CommandText = "select * from getuserminmaxcapacity('" + uid + "')";  //bedziemy wywolywac funkcje zwracajaca informacje o widelkach pojemnosciowych
                     reader = cmd.ExecuteReader();
 
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        initFilters.from_capacity = reader.GetInt32(0);
-                        initFilters.to_capacity = reader.GetInt32(1);
+                        initFilters.from_capacity = reader.GetInt32(0);                  //minimalna pojemnosc
+                        initFilters.to_capacity = reader.GetInt32(1);                    //maksymalna pojemnosc
                     }
 
                     reader.Dispose();
-                    cmd.CommandText = "select * from getuserlocations('" + uid + "')";
+                    cmd.CommandText = "select * from getuserlocations('" + uid + "')";   //bedziemy wywolywac funkcje zwracajaca unikatowe lokacje
                     reader = cmd.ExecuteReader();
 
 
@@ -481,13 +491,17 @@ namespace TCPConnection
                     {
                         while (reader.Read())
                         {
-                            initFilters.locations.Add(reader.GetString(0));
+                            initFilters.locations.Add(reader.GetString(0));             //dodawanie lokacji do listy
                         }
                     }
+
+                    //zamykamy reader i polaczenie
                     reader.Close();
 
                     con.Close();
 
+
+                    //serializujemy i wysylamy
                     result = XMLSerialize.Serialize<Filters>(initFilters);
 
                     Console.WriteLine(result);

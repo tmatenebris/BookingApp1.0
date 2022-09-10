@@ -339,6 +339,7 @@ namespace BookingApp1._0.Views
             Direction.SelectedIndex = -1;
         }
 
+        //sortowanie
         private async void OrderBy(object sender, RoutedEventArgs e)
         {
             current_view = "sorted";
